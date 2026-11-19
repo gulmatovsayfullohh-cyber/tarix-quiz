@@ -32,6 +32,17 @@ export default function NatijaPage() {
   const router = useRouter();
   const { fan, mavzu, score, wrong, totalCount, setFan, setMavzu, startQuiz } = useQuizStore();
 
+  // Natijani Supabase'ga saqlash
+  useEffect(() => {
+    if (!fan || !mavzu || !totalCount) return;
+    fetch("/api/results", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ fan, mavzu, score, total: totalCount }),
+    }).catch(() => {}); // xato bo'lsa jimgina o'tadi
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (!fan) router.push("/");
   }, [fan, router]);

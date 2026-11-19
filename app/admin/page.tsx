@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Pencil, Trash2, LogIn, X, Save, AlertCircle, CheckCircle2, BookOpen } from "lucide-react";
+import { Plus, Pencil, Trash2, LogIn, X, Save, AlertCircle, CheckCircle2, BookOpen, BarChart2 } from "lucide-react";
 
 interface Question {
   id?: string;
@@ -170,6 +170,11 @@ export default function AdminPage() {
           >
             Chiqish
           </button>
+          <a href="/statistika" style={{ textDecoration: "none" }}>
+            <button className="btn-ghost" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <BarChart2 size={16} /> Statistika
+            </button>
+          </a>
           <button className="btn-primary" onClick={openAdd} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <Plus size={18} /> Savol qo'shish
           </button>
