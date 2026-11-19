@@ -2,7 +2,19 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  BarChart2, Trophy, Target, TrendingUp, BookOpen, Calendar, AlertCircle,
+  BarChart2,
+  Trophy,
+  Target,
+  TrendingUp,
+  BookOpen,
+  Calendar,
+  AlertCircle,
+  ArrowLeft,
+  ShieldCheck,
+  KeyRound,
+  Eye,
+  EyeOff,
+  LogIn,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -29,37 +41,47 @@ export default function StatsPage() {
   const [error, setError] = useState("");
   const [token, setToken] = useState("");
   const [tokenInput, setTokenInput] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("admin_token") || "";
-    setToken(saved);
+    if (saved) {
+      setToken(saved);
+      fetchStats(saved);
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   const fetchStats = async (tok: string) => {
     setLoading(true);
     setError("");
-    const res = await fetch("/api/results", {
-      headers: { "x-admin-token": tok },
-    });
-    if (res.status === 401) {
-      setError("Noto'g'ri token!");
+    try {
+      const res = await fetch("/api/results", {
+        headers: { "x-admin-token": tok },
+      });
+      if (res.status === 401) {
+        setError("Noto'g'ri token kiritildi!");
+        setToken("");
+        localStorage.removeItem("admin_token");
+        setLoading(false);
+        return;
+      }
+      const data = await res.json();
+      setResults(Array.isArray(data) ? data : []);
+    } catch {
+      setError("Statistikani yuklashda xatolik yuz berdi.");
+    } finally {
       setLoading(false);
-      return;
     }
-    const data = await res.json();
-    setResults(Array.isArray(data) ? data : []);
-    setLoading(false);
   };
 
-  useEffect(() => {
-    if (token) fetchStats(token);
-    else setLoading(false);
-  }, [token]);
-
-  const handleLogin = () => {
-    localStorage.setItem("admin_token", tokenInput);
-    setToken(tokenInput);
-    fetchStats(tokenInput);
+  const handleLogin = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!tokenInput.trim()) return;
+    localStorage.setItem("admin_token", tokenInput.trim());
+    setToken(tokenInput.trim());
+    fetchStats(tokenInput.trim());
   };
 
   // ---- Hisob-kitoblar ----
@@ -70,7 +92,6 @@ export default function StatsPage() {
       : 0;
   const perfect = results.filter((r) => r.score === r.total).length;
 
-  // Mavzu bo'yicha guruhlash
   const byMavzu: Record<string, Result[]> = {};
   results.forEach((r) => {
     const key = `${r.fan}|||${r.mavzu}`;
@@ -89,147 +110,222 @@ export default function StatsPage() {
     })
     .sort((a, b) => b.count - a.count);
 
-  // So'nggi 10 ta urinish
   const recent = [...results]
     .sort((a, b) => new Date(b.taken_at).getTime() - new Date(a.taken_at).getTime())
-    .slice(0, 10);
+    .slice(0, 15);
 
   function pctColor(p: number) {
-    if (p >= 90) return "#f5c842";
-    if (p >= 70) return "#22c55e";
-    if (p >= 50) return "#4f8ef7";
-    return "#ef4444";
+    if (p >= 90) return "#facc15";
+    if (p >= 70) return "#10b981";
+    if (p >= 50) return "#38bdf8";
+    return "#f43f5e";
   }
 
-  // ---- LOGIN ----
+  // ---- LOGIN VIEW ----
   if (!token) {
     return (
-      <main style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "16px" }}>
+      <main className="min-h-screen flex items-center justify-center p-4 relative">
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="glass"
-          style={{ padding: "40px", width: "100%", maxWidth: "400px", borderRadius: "24px", textAlign: "center" }}
+          initial={{ opacity: 0, scale: 0.96, y: 15 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          className="liquid-border w-full max-w-md p-8 md:p-10 relative z-10"
         >
-          <BarChart2 size={36} style={{ color: "var(--accent-gold)", margin: "0 auto 16px" }} />
-          <h1 style={{ fontSize: "1.4rem", fontWeight: 800, marginBottom: "8px" }}>Statistika</h1>
-          <p style={{ color: "var(--text-secondary)", fontSize: "0.88rem", marginBottom: "24px" }}>
-            Admin token kiriting
-          </p>
+          <div className="flex items-center justify-between mb-8">
+            <Link
+              href="/"
+              className="text-xs text-slate-400 hover:text-white flex items-center gap-1.5 transition-colors"
+            >
+              <ArrowLeft size={14} />
+              Bosh sahifa
+            </Link>
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-sky-400/10 text-sky-300 border border-sky-400/20">
+              <ShieldCheck size={12} />
+              Natijalar
+            </span>
+          </div>
+
+          <div className="text-center mb-8">
+            <div className="relative inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-sky-400/20 via-slate-800 to-slate-900 border border-white/10 shadow-lg mb-4">
+              <BarChart2 size={24} className="text-sky-400" />
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight text-white mb-2">
+              Statistika Paneli
+            </h1>
+            <p className="text-xs md:text-sm text-slate-400 max-w-xs mx-auto">
+              O&apos;quvchilar natijalarini ko&apos;rish uchun admin tokenni kiriting
+            </p>
+          </div>
+
           {error && (
-            <div style={{ color: "#ef4444", fontSize: "0.85rem", marginBottom: "12px", display: "flex", alignItems: "center", gap: "6px", justifyContent: "center" }}>
-              <AlertCircle size={15} /> {error}
+            <div className="p-3 mb-5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs flex items-center gap-2">
+              <AlertCircle size={15} />
+              <span>{error}</span>
             </div>
           )}
-          <input
-            type="password"
-            value={tokenInput}
-            onChange={(e) => setTokenInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-            placeholder="Token..."
-            style={{
-              width: "100%", padding: "12px 14px", borderRadius: "10px",
-              background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
-              color: "var(--text-primary)", fontSize: "1rem", marginBottom: "12px", outline: "none",
-              fontFamily: "var(--font-outfit)",
-            }}
-          />
-          <button className="btn-primary" onClick={handleLogin} style={{ width: "100%" }}>
-            Kirish
-          </button>
+
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={tokenInput}
+                onChange={(e) => setTokenInput(e.target.value)}
+                placeholder="Admin token..."
+                className="modern-input pr-10"
+                autoFocus
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+            <button type="submit" className="btn-primary w-full">
+              <LogIn size={16} /> Kirish
+            </button>
+          </form>
         </motion.div>
       </main>
     );
   }
 
   return (
-    <main style={{ maxWidth: "1000px", margin: "0 auto", padding: "32px 16px 80px" }}>
+    <main className="max-w-6xl mx-auto px-4 py-8 pb-28">
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "32px", flexWrap: "wrap", gap: "12px" }}>
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="gradient-text" style={{ fontSize: "1.8rem", fontWeight: 800 }}>📊 Statistika</h1>
-          <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem" }}>
-            Jami {totalSessions} ta urinish
-          </p>
+          <div className="flex items-center gap-2 text-xs text-slate-400 mb-1">
+            <Link href="/" className="hover:text-white transition-colors flex items-center gap-1">
+              <ArrowLeft size={13} /> Asosiy sayt
+            </Link>
+            <span>/</span>
+            <Link href="/admin" className="hover:text-white transition-colors">
+              Admin
+            </Link>
+            <span>/</span>
+            <span className="text-sky-400 font-medium">Statistika</span>
+          </div>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight flex items-center gap-2.5">
+            Test Natijalari Tahlili
+          </h1>
         </div>
-        <div style={{ display: "flex", gap: "10px" }}>
+
+        <div className="flex items-center gap-2.5">
           <Link href="/admin" style={{ textDecoration: "none" }}>
             <button className="btn-ghost">Admin panel</button>
           </Link>
-          <Link href="/" style={{ textDecoration: "none" }}>
-            <button className="btn-ghost">Bosh sahifa</button>
-          </Link>
+          <button
+            onClick={() => {
+              localStorage.removeItem("admin_token");
+              setToken("");
+            }}
+            className="btn-ghost text-rose-400 hover:text-rose-300"
+          >
+            Chiqish
+          </button>
         </div>
-      </div>
+      </header>
 
       {loading ? (
-        <div style={{ textAlign: "center", padding: "80px", color: "var(--text-secondary)" }}>Yuklanmoqda...</div>
+        <div className="py-24 text-center">
+          <div className="w-8 h-8 border-2 border-sky-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-sm text-slate-400">Statistika hisoblanmoqda...</p>
+        </div>
       ) : (
         <>
-          {/* Umumiy kartalar */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", marginBottom: "32px" }}>
+          {/* Top 4 Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
             {[
-              { icon: <Target size={22} />, label: "Jami urinish", value: totalSessions, color: "#4f8ef7" },
-              { icon: <TrendingUp size={22} />, label: "O'rtacha ball", value: `${avgScore}%`, color: "#22c55e" },
-              { icon: <Trophy size={22} />, label: "100% natija", value: perfect, color: "#f5c842" },
-              { icon: <BookOpen size={22} />, label: "Mavzular", value: statCards.length, color: "#a78bfa" },
+              {
+                icon: <Target size={20} />,
+                label: "Jami urinishlar",
+                value: totalSessions,
+                color: "text-sky-400",
+                bg: "bg-sky-400/10",
+                border: "border-sky-400/20",
+              },
+              {
+                icon: <TrendingUp size={20} />,
+                label: "O'rtacha o'zlashtirish",
+                value: `${avgScore}%`,
+                color: "text-emerald-400",
+                bg: "bg-emerald-400/10",
+                border: "border-emerald-400/20",
+              },
+              {
+                icon: <Trophy size={20} />,
+                label: "100% natija",
+                value: perfect,
+                color: "text-amber-400",
+                bg: "bg-amber-400/10",
+                border: "border-amber-400/20",
+              },
+              {
+                icon: <BookOpen size={20} />,
+                label: "Qamrab olingan mavzu",
+                value: statCards.length,
+                color: "text-indigo-400",
+                bg: "bg-indigo-400/10",
+                border: "border-indigo-400/20",
+              },
             ].map((c, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.08 }}
-                className="glass"
-                style={{ padding: "20px 24px", borderRadius: "18px", display: "flex", alignItems: "center", gap: "16px" }}
+                transition={{ delay: i * 0.05 }}
+                className="glass p-4 rounded-xl flex items-center gap-3.5"
               >
-                <div style={{ width: "44px", height: "44px", borderRadius: "12px", background: `${c.color}1a`, display: "flex", alignItems: "center", justifyContent: "center", color: c.color, flexShrink: 0 }}>
+                <div className={`w-10 h-10 rounded-xl ${c.bg} ${c.color} border ${c.border} flex items-center justify-center shrink-0`}>
                   {c.icon}
                 </div>
                 <div>
-                  <div style={{ fontSize: "1.5rem", fontWeight: 800, color: c.color }}>{c.value}</div>
-                  <div style={{ fontSize: "0.78rem", color: "var(--text-secondary)", fontWeight: 500 }}>{c.label}</div>
+                  <div className={`text-xl font-bold tracking-tight ${c.color}`}>{c.value}</div>
+                  <div className="text-xs text-slate-400">{c.label}</div>
                 </div>
               </motion.div>
             ))}
           </div>
 
-          {/* Mavzu bo'yicha statistika */}
+          {/* Mavzular reytingi */}
           {statCards.length > 0 && (
-            <div style={{ marginBottom: "32px" }}>
-              <h2 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
-                <BarChart2 size={18} style={{ color: "var(--accent-gold)" }} /> Mavzu bo'yicha
-              </h2>
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            <div className="space-y-4 mb-10">
+              <div className="flex items-center justify-between pb-2 border-b border-white/5">
+                <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                  <BarChart2 size={16} className="text-amber-400" />
+                  Mavzular kesimida samaradorlik
+                </h2>
+                <span className="text-xs text-slate-500">{statCards.length} ta mavzu</span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {statCards.map((s, i) => (
                   <motion.div
                     key={i}
-                    initial={{ opacity: 0, x: -16 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.06 }}
-                    className="glass"
-                    style={{ padding: "16px 20px", borderRadius: "16px" }}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.03 }}
+                    className="glass p-4 rounded-xl space-y-3"
                   >
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px", flexWrap: "wrap", gap: "8px" }}>
+                    <div className="flex items-start justify-between gap-2">
                       <div>
-                        <p style={{ fontWeight: 600, fontSize: "0.9rem" }}>{s.mavzu}</p>
-                        <p style={{ color: "var(--text-secondary)", fontSize: "0.76rem" }}>{s.fan} · {s.count} ta urinish</p>
+                        <h4 className="text-sm font-semibold text-slate-100 leading-snug">{s.mavzu}</h4>
+                        <p className="text-xs text-slate-400 mt-0.5">{s.fan} · {s.count} ta topshirilgan</p>
                       </div>
-                      <div style={{ display: "flex", gap: "10px" }}>
-                        <span style={{ fontSize: "0.8rem", color: "#4f8ef7", background: "rgba(79,142,247,0.1)", padding: "4px 10px", borderRadius: "8px" }}>
-                          O'rt: {s.avgPct}%
-                        </span>
-                        <span style={{ fontSize: "0.8rem", color: "#f5c842", background: "rgba(245,200,66,0.1)", padding: "4px 10px", borderRadius: "8px" }}>
-                          Eng yaxshi: {s.best}%
-                        </span>
-                      </div>
+                      <span className="text-xs font-bold px-2 py-0.5 rounded bg-white/5 border border-white/10" style={{ color: pctColor(s.avgPct) }}>
+                        {s.avgPct}%
+                      </span>
                     </div>
-                    {/* Progress bar */}
-                    <div style={{ height: "6px", background: "rgba(255,255,255,0.08)", borderRadius: "3px", overflow: "hidden" }}>
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${s.avgPct}%` }}
-                        transition={{ duration: 0.8, delay: 0.2 + i * 0.06 }}
-                        style={{ height: "100%", borderRadius: "3px", background: `linear-gradient(90deg, ${pctColor(s.avgPct)}, ${pctColor(s.avgPct)}99)` }}
+
+                    {/* Progress track */}
+                    <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-700"
+                        style={{
+                          width: `${s.avgPct}%`,
+                          backgroundColor: pctColor(s.avgPct),
+                        }}
                       />
                     </div>
                   </motion.div>
@@ -238,39 +334,40 @@ export default function StatsPage() {
             </div>
           )}
 
-          {/* So'nggi urinishlar */}
+          {/* So'nggi natijalar */}
           {recent.length > 0 && (
-            <div>
-              <h2 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
-                <Calendar size={18} style={{ color: "var(--accent-gold)" }} /> So'nggi urinishlar
-              </h2>
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                {recent.map((r, i) => {
+            <div className="space-y-4">
+              <div className="flex items-center justify-between pb-2 border-b border-white/5">
+                <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                  <Calendar size={16} className="text-sky-400" />
+                  So&apos;nggi topshirilgan testlar
+                </h2>
+                <span className="text-xs text-slate-500">Oxirgi {recent.length} ta</span>
+              </div>
+
+              <div className="glass rounded-xl divide-y divide-white/5 overflow-hidden">
+                {recent.map((r) => {
                   const pct = Math.round((r.score / r.total) * 100);
                   const date = new Date(r.taken_at);
                   return (
-                    <motion.div
-                      key={r.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: i * 0.04 }}
-                      className="glass"
-                      style={{ padding: "12px 18px", borderRadius: "12px", display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}
-                    >
-                      <span style={{ fontSize: "1.1rem", fontWeight: 800, color: pctColor(pct), minWidth: "52px" }}>
-                        {pct}%
-                      </span>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ fontSize: "0.85rem", fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.mavzu}</p>
-                        <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>{r.fan}</p>
+                    <div key={r.id} className="p-3.5 flex items-center justify-between gap-3 text-xs hover:bg-white/[0.02] transition-colors">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="w-10 font-bold text-center py-1 rounded bg-white/5" style={{ color: pctColor(pct) }}>
+                          {pct}%
+                        </span>
+                        <div className="truncate">
+                          <div className="font-medium text-slate-200 truncate">{r.mavzu}</div>
+                          <div className="text-slate-500 text-[11px]">{r.fan}</div>
+                        </div>
                       </div>
-                      <div style={{ textAlign: "right", flexShrink: 0 }}>
-                        <p style={{ fontSize: "0.8rem", fontWeight: 600 }}>{r.score}/{r.total}</p>
-                        <p style={{ fontSize: "0.72rem", color: "var(--text-secondary)" }}>
+
+                      <div className="text-right shrink-0">
+                        <div className="text-slate-300 font-semibold">{r.score}/{r.total} to&apos;g&apos;ri</div>
+                        <div className="text-slate-500 text-[10px]">
                           {date.toLocaleDateString("uz-UZ")} {date.toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" })}
-                        </p>
+                        </div>
                       </div>
-                    </motion.div>
+                    </div>
                   );
                 })}
               </div>
@@ -278,9 +375,10 @@ export default function StatsPage() {
           )}
 
           {totalSessions === 0 && (
-            <div style={{ textAlign: "center", padding: "80px", color: "var(--text-secondary)" }}>
-              <BarChart2 size={48} style={{ opacity: 0.3, margin: "0 auto 16px" }} />
-              <p>Hozircha statistika yo'q. Quiz yechilgach shu yerda ko'rinadi.</p>
+            <div className="glass p-12 text-center rounded-2xl">
+              <BarChart2 size={36} className="text-slate-500 mx-auto mb-3" />
+              <h3 className="text-sm font-semibold text-white mb-1">Hozircha natijalar yo&apos;q</h3>
+              <p className="text-xs text-slate-400">O&apos;quvchilar test yechishi bilan bu yerda batafsil tahlil paydo bo&apos;ladi.</p>
             </div>
           )}
         </>
