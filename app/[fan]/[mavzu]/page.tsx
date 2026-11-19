@@ -7,6 +7,8 @@ import { ArrowLeft, Layers } from "lucide-react";
 import { getSavollarSoni, getSavollar } from "@/lib/questions";
 import { useQuizStore } from "@/lib/quiz-store";
 
+export const dynamic = "force-dynamic";
+
 interface Props {
   params: Promise<{ fan: string; mavzu: string }>;
 }

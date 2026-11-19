@@ -5,6 +5,8 @@ import { motion } from "framer-motion";
 import { ArrowLeft, BookMarked, ChevronRight } from "lucide-react";
 import { getMavzular, getSavollarSoni } from "@/lib/questions";
 
+export const dynamic = "force-dynamic";
+
 interface Props {
   params: Promise<{ fan: string }>;
 }
