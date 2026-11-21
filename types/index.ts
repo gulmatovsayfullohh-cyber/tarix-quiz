@@ -28,4 +28,7 @@ export interface QuizState {
   score: number;
   wrong: WrongAnswer[];
   totalCount: number;
+  startTime: number | null;
+  endTime: number | null;
+  elapsedSeconds: number;
 }

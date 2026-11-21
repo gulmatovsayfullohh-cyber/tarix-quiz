@@ -15,8 +15,13 @@ import {
   Eye,
   EyeOff,
   LogIn,
+  Timer,
+  CheckCircle2,
 } from "lucide-react";
 import Link from "next/link";
+import Navbar from "@/components/Navbar";
+import { useSettingsStore } from "@/lib/settings-store";
+import { t } from "@/lib/translations";
 
 interface Result {
   id: string;
@@ -24,6 +29,7 @@ interface Result {
   mavzu: string;
   score: number;
   total: number;
+  time_spent?: number;
   taken_at: string;
 }
 
@@ -35,7 +41,18 @@ interface StatCard {
   best: number;
 }
 
+function formatDuration(totalSeconds?: number): string {
+  if (!totalSeconds) return "—";
+  const mins = Math.floor(totalSeconds / 60);
+  const secs = totalSeconds % 60;
+  if (mins > 0) return `${mins}m ${secs}s`;
+  return `${secs}s`;
+}
+
 export default function StatsPage() {
+  const { lang } = useSettingsStore();
+  const strings = t[lang];
+
   const [results, setResults] = useState<Result[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -61,7 +78,7 @@ export default function StatsPage() {
         headers: { "x-admin-token": tok },
       });
       if (res.status === 401) {
-        setError("Noto'g'ri token kiritildi!");
+        setError(lang === "uz" ? "Noto'g'ri token kiritildi!" : "Неверный токен!");
         setToken("");
         localStorage.removeItem("admin_token");
         setLoading(false);
@@ -70,7 +87,7 @@ export default function StatsPage() {
       const data = await res.json();
       setResults(Array.isArray(data) ? data : []);
     } catch {
-      setError("Statistikani yuklashda xatolik yuz berdi.");
+      setError(lang === "uz" ? "Statistikani yuklashda xatolik yuz berdi." : "Ошибка загрузки статистики.");
     } finally {
       setLoading(false);
     }
@@ -84,7 +101,7 @@ export default function StatsPage() {
     fetchStats(tokenInput.trim());
   };
 
-  // ---- Hisob-kitoblar ----
+  // Hisoblar
   const totalSessions = results.length;
   const avgScore =
     totalSessions > 0
@@ -115,274 +132,266 @@ export default function StatsPage() {
     .slice(0, 15);
 
   function pctColor(p: number) {
-    if (p >= 90) return "#facc15";
-    if (p >= 70) return "#10b981";
-    if (p >= 50) return "#38bdf8";
-    return "#f43f5e";
+    if (p >= 90) return "#10b981";
+    if (p >= 70) return "#3b82f6";
+    if (p >= 50) return "#f59e0b";
+    return "#ef4444";
   }
 
-  // ---- LOGIN VIEW ----
+  // LOGIN SCREEN
   if (!token) {
     return (
-      <main className="min-h-screen flex items-center justify-center p-4 relative">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.96, y: 15 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          className="liquid-border w-full max-w-md p-8 md:p-10 relative z-10"
-        >
-          <div className="flex items-center justify-between mb-8">
-            <Link
-              href="/"
-              className="text-xs text-slate-400 hover:text-white flex items-center gap-1.5 transition-colors"
-            >
-              <ArrowLeft size={14} />
-              Bosh sahifa
-            </Link>
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-sky-400/10 text-sky-300 border border-sky-400/20">
-              <ShieldCheck size={12} />
-              Natijalar
-            </span>
-          </div>
-
-          <div className="text-center mb-8">
-            <div className="relative inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-sky-400/20 via-slate-800 to-slate-900 border border-white/10 shadow-lg mb-4">
-              <BarChart2 size={24} className="text-sky-400" />
-            </div>
-            <h1 className="text-2xl font-bold tracking-tight text-white mb-2">
-              Statistika Paneli
-            </h1>
-            <p className="text-xs md:text-sm text-slate-400 max-w-xs mx-auto">
-              O&apos;quvchilar natijalarini ko&apos;rish uchun admin tokenni kiriting
-            </p>
-          </div>
-
-          {error && (
-            <div className="p-3 mb-5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs flex items-center gap-2">
-              <AlertCircle size={15} />
-              <span>{error}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                value={tokenInput}
-                onChange={(e) => setTokenInput(e.target.value)}
-                placeholder="Admin token..."
-                className="modern-input pr-10"
-                autoFocus
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+      <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 transition-colors">
+        <Navbar />
+        <main className="flex-1 flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="liquid-border w-full max-w-md p-8 sm:p-10 bg-white dark:bg-slate-900 shadow-2xl relative z-10"
+          >
+            <div className="flex items-center justify-between mb-8">
+              <Link
+                href="/"
+                className="text-xs font-semibold text-slate-500 hover:text-violet-600 dark:text-slate-400 dark:hover:text-white flex items-center gap-1.5 transition-colors"
               >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
+                <ArrowLeft size={14} />
+                {strings.quiz.home}
+              </Link>
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                <ShieldCheck size={12} />
+                {lang === "uz" ? "Natijalar" : "Результаты"}
+              </span>
             </div>
-            <button type="submit" className="btn-primary w-full">
-              <LogIn size={16} /> Kirish
-            </button>
-          </form>
-        </motion.div>
-      </main>
+
+            <div className="text-center mb-8">
+              <div className="relative inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white shadow-lg shadow-emerald-500/30 mb-4">
+                <BarChart2 size={26} />
+              </div>
+              <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-2">
+                {strings.stats.title}
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-xs mx-auto">
+                {lang === "uz"
+                  ? "O'quvchilar natijalarini ko'rish uchun token kiriting"
+                  : "Введите токен для просмотра результатов тестирования"}
+              </p>
+            </div>
+
+            {error && (
+              <div className="p-3 mb-5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs flex items-center gap-2">
+                <AlertCircle size={15} />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={tokenInput}
+                  onChange={(e) => setTokenInput(e.target.value)}
+                  placeholder="tarix-admin-2024"
+                  className="modern-input pr-10"
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-white"
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+              <button type="submit" className="btn-primary w-full">
+                <LogIn size={16} /> {lang === "uz" ? "Kirish" : "Войти"}
+              </button>
+            </form>
+          </motion.div>
+        </main>
+      </div>
     );
   }
 
   return (
-    <main className="max-w-6xl mx-auto px-4 py-8 pb-28">
-      {/* Header */}
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <div>
-          <div className="flex items-center gap-2 text-xs text-slate-400 mb-1">
-            <Link href="/" className="hover:text-white transition-colors flex items-center gap-1">
-              <ArrowLeft size={13} /> Asosiy sayt
-            </Link>
-            <span>/</span>
-            <Link href="/admin" className="hover:text-white transition-colors">
-              Admin
-            </Link>
-            <span>/</span>
-            <span className="text-sky-400 font-medium">Statistika</span>
-          </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight flex items-center gap-2.5">
-            Test Natijalari Tahlili
-          </h1>
-        </div>
+    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 transition-colors">
+      <Navbar />
 
-        <div className="flex items-center gap-2.5">
-          <Link href="/admin" style={{ textDecoration: "none" }}>
-            <button className="btn-ghost">Admin panel</button>
-          </Link>
-          <button
-            onClick={() => {
-              localStorage.removeItem("admin_token");
-              setToken("");
-            }}
-            className="btn-ghost text-rose-400 hover:text-rose-300"
-          >
-            Chiqish
-          </button>
-        </div>
-      </header>
-
-      {loading ? (
-        <div className="py-24 text-center">
-          <div className="w-8 h-8 border-2 border-sky-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-sm text-slate-400">Statistika hisoblanmoqda...</p>
-        </div>
-      ) : (
-        <>
-          {/* Top 4 Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
-            {[
-              {
-                icon: <Target size={20} />,
-                label: "Jami urinishlar",
-                value: totalSessions,
-                color: "text-sky-400",
-                bg: "bg-sky-400/10",
-                border: "border-sky-400/20",
-              },
-              {
-                icon: <TrendingUp size={20} />,
-                label: "O'rtacha o'zlashtirish",
-                value: `${avgScore}%`,
-                color: "text-emerald-400",
-                bg: "bg-emerald-400/10",
-                border: "border-emerald-400/20",
-              },
-              {
-                icon: <Trophy size={20} />,
-                label: "100% natija",
-                value: perfect,
-                color: "text-amber-400",
-                bg: "bg-amber-400/10",
-                border: "border-amber-400/20",
-              },
-              {
-                icon: <BookOpen size={20} />,
-                label: "Qamrab olingan mavzu",
-                value: statCards.length,
-                color: "text-indigo-400",
-                bg: "bg-indigo-400/10",
-                border: "border-indigo-400/20",
-              },
-            ].map((c, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }}
-                className="glass p-4 rounded-xl flex items-center gap-3.5"
-              >
-                <div className={`w-10 h-10 rounded-xl ${c.bg} ${c.color} border ${c.border} flex items-center justify-center shrink-0`}>
-                  {c.icon}
-                </div>
-                <div>
-                  <div className={`text-xl font-bold tracking-tight ${c.color}`}>{c.value}</div>
-                  <div className="text-xs text-slate-400">{c.label}</div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Mavzular reytingi */}
-          {statCards.length > 0 && (
-            <div className="space-y-4 mb-10">
-              <div className="flex items-center justify-between pb-2 border-b border-white/5">
-                <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                  <BarChart2 size={16} className="text-amber-400" />
-                  Mavzular kesimida samaradorlik
-                </h2>
-                <span className="text-xs text-slate-500">{statCards.length} ta mavzu</span>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {statCards.map((s, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.03 }}
-                    className="glass p-4 rounded-xl space-y-3"
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <h4 className="text-sm font-semibold text-slate-100 leading-snug">{s.mavzu}</h4>
-                        <p className="text-xs text-slate-400 mt-0.5">{s.fan} · {s.count} ta topshirilgan</p>
-                      </div>
-                      <span className="text-xs font-bold px-2 py-0.5 rounded bg-white/5 border border-white/10" style={{ color: pctColor(s.avgPct) }}>
-                        {s.avgPct}%
-                      </span>
-                    </div>
-
-                    {/* Progress track */}
-                    <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                      <div
-                        className="h-full rounded-full transition-all duration-700"
-                        style={{
-                          width: `${s.avgPct}%`,
-                          backgroundColor: pctColor(s.avgPct),
-                        }}
-                      />
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-8 pb-28">
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
+              <Link href="/" className="hover:text-violet-600 dark:hover:text-white flex items-center gap-1">
+                <ArrowLeft size={13} /> {strings.quiz.home}
+              </Link>
+              <span>/</span>
+              <Link href="/admin" className="hover:text-violet-600 dark:hover:text-white">
+                Admin
+              </Link>
+              <span>/</span>
+              <span className="text-emerald-600 dark:text-emerald-400">{strings.nav.stats}</span>
             </div>
-          )}
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2.5">
+              {strings.stats.title}
+            </h1>
+          </div>
 
-          {/* So'nggi natijalar */}
-          {recent.length > 0 && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between pb-2 border-b border-white/5">
-                <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                  <Calendar size={16} className="text-sky-400" />
-                  So&apos;nggi topshirilgan testlar
-                </h2>
-                <span className="text-xs text-slate-500">Oxirgi {recent.length} ta</span>
-              </div>
+          <div className="flex items-center gap-2.5">
+            <Link href="/admin">
+              <button className="btn-ghost">{strings.nav.admin}</button>
+            </Link>
+            <button
+              onClick={() => {
+                localStorage.removeItem("admin_token");
+                setToken("");
+              }}
+              className="btn-ghost text-rose-500 hover:text-rose-600"
+            >
+              {strings.admin.logout}
+            </button>
+          </div>
+        </header>
 
-              <div className="glass rounded-xl divide-y divide-white/5 overflow-hidden">
-                {recent.map((r) => {
-                  const pct = Math.round((r.score / r.total) * 100);
-                  const date = new Date(r.taken_at);
-                  return (
-                    <div key={r.id} className="p-3.5 flex items-center justify-between gap-3 text-xs hover:bg-white/[0.02] transition-colors">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <span className="w-10 font-bold text-center py-1 rounded bg-white/5" style={{ color: pctColor(pct) }}>
-                          {pct}%
+        {loading ? (
+          <div className="py-24 text-center">
+            <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              {lang === "uz" ? "Statistika hisoblanmoqda..." : "Расчет статистики..."}
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* Top 4 ko'rsatkich */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-8">
+              {[
+                {
+                  icon: <Target size={20} />,
+                  label: strings.stats.totalAttempts,
+                  value: totalSessions,
+                  color: "text-blue-500",
+                  bg: "bg-blue-500/10",
+                },
+                {
+                  icon: <TrendingUp size={20} />,
+                  label: strings.stats.avgScore,
+                  value: `${avgScore}%`,
+                  color: "text-emerald-500",
+                  bg: "bg-emerald-500/10",
+                },
+                {
+                  icon: <Trophy size={20} />,
+                  label: strings.stats.perfectCount,
+                  value: perfect,
+                  color: "text-amber-500",
+                  bg: "bg-amber-500/10",
+                },
+                {
+                  icon: <BookOpen size={20} />,
+                  label: strings.stats.coveredTopics,
+                  value: statCards.length,
+                  color: "text-violet-500",
+                  bg: "bg-violet-500/10",
+                },
+              ].map((c, i) => (
+                <div key={i} className="glass p-4 rounded-2xl flex items-center gap-3.5">
+                  <div className={`w-10 h-10 rounded-xl ${c.bg} ${c.color} flex items-center justify-center shrink-0`}>
+                    {c.icon}
+                  </div>
+                  <div>
+                    <div className={`text-xl font-extrabold tracking-tight ${c.color}`}>{c.value}</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">{c.label}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Mavzular kesimida */}
+            {statCards.length > 0 && (
+              <div className="space-y-4 mb-10">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-white/10">
+                  <h2 className="text-sm font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 flex items-center gap-2">
+                    <BarChart2 size={16} className="text-violet-600" />
+                    {strings.stats.byTopic}
+                  </h2>
+                  <span className="text-xs text-slate-500">{statCards.length} ta mavzu</span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {statCards.map((s, i) => (
+                    <div key={i} className="glass p-4 rounded-2xl space-y-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <h4 className="text-sm font-bold text-slate-900 dark:text-white leading-snug">{s.mavzu}</h4>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{s.fan} · {s.count} ta topshirilgan</p>
+                        </div>
+                        <span className="text-xs font-black px-2.5 py-0.5 rounded-lg bg-slate-100 dark:bg-white/10" style={{ color: pctColor(s.avgPct) }}>
+                          {s.avgPct}%
                         </span>
-                        <div className="truncate">
-                          <div className="font-medium text-slate-200 truncate">{r.mavzu}</div>
-                          <div className="text-slate-500 text-[11px]">{r.fan}</div>
-                        </div>
                       </div>
 
-                      <div className="text-right shrink-0">
-                        <div className="text-slate-300 font-semibold">{r.score}/{r.total} to&apos;g&apos;ri</div>
-                        <div className="text-slate-500 text-[10px]">
-                          {date.toLocaleDateString("uz-UZ")} {date.toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" })}
-                        </div>
+                      <div className="h-2 w-full bg-slate-200 dark:bg-white/10 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-700"
+                          style={{
+                            width: `${s.avgPct}%`,
+                            backgroundColor: pctColor(s.avgPct),
+                          }}
+                        />
                       </div>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {totalSessions === 0 && (
-            <div className="glass p-12 text-center rounded-2xl">
-              <BarChart2 size={36} className="text-slate-500 mx-auto mb-3" />
-              <h3 className="text-sm font-semibold text-white mb-1">Hozircha natijalar yo&apos;q</h3>
-              <p className="text-xs text-slate-400">O&apos;quvchilar test yechishi bilan bu yerda batafsil tahlil paydo bo&apos;ladi.</p>
-            </div>
-          )}
-        </>
-      )}
-    </main>
+            {/* So'nggi testlar va sarflangan vaqt */}
+            {recent.length > 0 && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-white/10">
+                  <h2 className="text-sm font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 flex items-center gap-2">
+                    <Calendar size={16} className="text-sky-500" />
+                    {strings.stats.recent}
+                  </h2>
+                </div>
+
+                <div className="glass rounded-2xl divide-y divide-slate-200 dark:divide-white/10 overflow-hidden">
+                  {recent.map((r) => {
+                    const pct = Math.round((r.score / r.total) * 100);
+                    const date = new Date(r.taken_at);
+                    return (
+                      <div key={r.id} className="p-4 flex items-center justify-between gap-3 text-xs hover:bg-slate-100/50 dark:hover:bg-white/[0.02] transition-colors">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <span className="w-12 font-black text-center py-1 rounded-lg bg-slate-100 dark:bg-white/10" style={{ color: pctColor(pct) }}>
+                            {pct}%
+                          </span>
+                          <div className="truncate">
+                            <div className="font-bold text-slate-900 dark:text-white truncate">{r.mavzu}</div>
+                            <div className="text-slate-500 text-[11px]">{r.fan}</div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-4 text-right shrink-0">
+                          {r.time_spent ? (
+                            <div className="flex items-center gap-1 font-mono font-bold text-violet-600 dark:text-violet-400">
+                              <Timer size={13} />
+                              <span>{formatDuration(r.time_spent)}</span>
+                            </div>
+                          ) : null}
+                          <div>
+                            <div className="text-slate-800 dark:text-slate-200 font-bold">{r.score}/{r.total} to&apos;g&apos;ri</div>
+                            <div className="text-slate-400 text-[10px]">
+                              {date.toLocaleDateString("uz-UZ")} {date.toLocaleTimeString("uz-UZ", { hour: "2-digit", minute: "2-digit" })}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </main>
+    </div>
   );
 }

@@ -2,13 +2,16 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, Layers } from "lucide-react";
+import { ArrowLeft, Layers, Gamepad2, Sparkles, CheckCircle2 } from "lucide-react";
 import { getSavollarSoni, getSavollar } from "@/lib/questions";
 import { useQuizStore } from "@/lib/quiz-store";
+import Navbar from "@/components/Navbar";
+import { useSettingsStore } from "@/lib/settings-store";
 
 const COUNT_OPTIONS = [5, 10, 15, 20, 30];
 
 export default function MavzuContent({ fan, mavzu }: { fan: string; mavzu: string }) {
+  const { lang } = useSettingsStore();
   const total = getSavollarSoni(fan, mavzu);
   const router = useRouter();
   const { setFan, setMavzu, startQuiz } = useQuizStore();
@@ -24,79 +27,67 @@ export default function MavzuContent({ fan, mavzu }: { fan: string; mavzu: strin
   };
 
   return (
-    <main style={{ maxWidth: "600px", margin: "0 auto", padding: "32px 16px 80px" }}>
-      <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
-        <Link href={`/${encodeURIComponent(fan)}`} style={{ textDecoration: "none" }}>
-          <button className="btn-ghost" style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "32px" }}>
-            <ArrowLeft size={16} /> Orqaga
-          </button>
-        </Link>
-      </motion.div>
+    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 transition-colors">
+      <Navbar />
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
-          <Layers size={20} style={{ color: "var(--accent-gold)" }} />
-          <span style={{ color: "var(--text-secondary)", fontSize: "0.82rem", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-            {fan}
-          </span>
+      <main className="flex-1 max-w-2xl w-full mx-auto px-4 py-8 pb-24">
+        {/* Back */}
+        <div className="mb-6">
+          <Link href={`/${encodeURIComponent(fan)}`} className="inline-block">
+            <button className="btn-ghost text-xs">
+              <ArrowLeft size={14} /> {lang === "uz" ? "Mavzularga qaytish" : "Назад к темам"}
+            </button>
+          </Link>
         </div>
-        <h1 style={{ fontSize: "1.5rem", fontWeight: 800, marginBottom: "8px", lineHeight: 1.3 }}>
-          {mavzu}
-        </h1>
-        <p style={{ color: "var(--text-secondary)", marginBottom: "40px", fontSize: "0.9rem" }}>
-          Jami{" "}
-          <strong style={{ color: "var(--accent-gold)" }}>{total} ta</strong>{" "}
-          savol mavjud. Qancha yechmoqchisiz?
-        </p>
-      </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
-        style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: "12px" }}
-      >
-        {options.map((n, i) => (
-          <motion.button
-            key={n}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.1 + i * 0.05 }}
-            onClick={() => handleStart(n)}
-            className="glass"
-            style={{
-              padding: "20px 12px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "6px",
-              cursor: "pointer",
-              border: n === total ? "1px solid rgba(245,200,66,0.4)" : "1px solid rgba(255,255,255,0.08)",
-              borderRadius: "16px",
-              fontFamily: "var(--font-outfit), sans-serif",
-              color: "var(--text-primary)",
-              transition: "all 0.2s ease",
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(245,200,66,0.6)";
-              (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-3px)";
-              (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 10px 24px rgba(245,200,66,0.15)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.borderColor = n === total ? "rgba(245,200,66,0.4)" : "rgba(255,255,255,0.08)";
-              (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
-              (e.currentTarget as HTMLButtonElement).style.boxShadow = "none";
-            }}
-          >
-            <span style={{ fontSize: "1.8rem", fontWeight: 800, color: n === total ? "var(--accent-gold)" : "var(--text-primary)" }}>
-              {n}
+        {/* Card */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96, y: 15 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          className="liquid-border p-6 sm:p-10 bg-white dark:bg-slate-900 rounded-3xl shadow-xl text-center space-y-6"
+        >
+          <div className="w-14 h-14 rounded-2xl bg-violet-500/10 text-violet-600 dark:text-violet-400 flex items-center justify-center mx-auto">
+            <Gamepad2 size={28} />
+          </div>
+
+          <div>
+            <span className="text-xs font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400 bg-violet-500/10 px-3 py-1 rounded-full">
+              {fan}
             </span>
-            <span style={{ fontSize: "0.78rem", color: "var(--text-secondary)" }}>
-              {n === total ? "Hammasi" : "ta savol"}
-            </span>
-          </motion.button>
-        ))}
-      </motion.div>
-    </main>
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-3 mb-2">
+              {mavzu}
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+              {lang === "uz"
+                ? `Ushbu mavzuda jami ${total} ta savol bor. Nechtasini yechmoqchisiz?`
+                : `В этой теме всего ${total} вопросов. Сколько вы хотите пройти?`}
+            </p>
+          </div>
+
+          {/* Count Buttons */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
+            {options.map((n) => {
+              const isAll = n === total;
+              return (
+                <button
+                  key={n}
+                  onClick={() => handleStart(n)}
+                  className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center justify-center gap-1 group hover:-translate-y-1 ${
+                    isAll
+                      ? "border-violet-600 bg-violet-600/10 text-violet-600 dark:text-violet-400 shadow-md"
+                      : "border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-slate-800 dark:text-slate-200 hover:border-violet-500"
+                  }`}
+                >
+                  <span className="text-2xl font-black">{n}</span>
+                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                    {isAll ? (lang === "uz" ? "Hammasi" : "Все") : (lang === "uz" ? "ta savol" : "вопросов")}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </motion.div>
+      </main>
+    </div>
   );
 }

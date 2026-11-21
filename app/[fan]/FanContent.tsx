@@ -1,106 +1,89 @@
 "use client";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, BookMarked, ChevronRight } from "lucide-react";
+import { ArrowLeft, BookMarked, ChevronRight, Sparkles, Layers } from "lucide-react";
 import { getMavzular, getSavollarSoni } from "@/lib/questions";
+import Navbar from "@/components/Navbar";
+import { useSettingsStore } from "@/lib/settings-store";
+import { t } from "@/lib/translations";
 
 export default function FanContent({ fan }: { fan: string }) {
+  const { lang } = useSettingsStore();
+  const strings = t[lang];
   const fanDecoded = decodeURIComponent(fan);
   const mavzular = getMavzular(fanDecoded);
 
   return (
-    <main style={{ maxWidth: "720px", margin: "0 auto", padding: "32px 16px 80px" }}>
-      <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }}>
-        <Link href="/" style={{ textDecoration: "none" }}>
-          <button className="btn-ghost" style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "32px" }}>
-            <ArrowLeft size={16} /> Orqaga
-          </button>
-        </Link>
-      </motion.div>
+    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 transition-colors">
+      <Navbar />
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-        <p style={{ color: "var(--text-secondary)", fontSize: "0.82rem", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "8px" }}>
-          Fan
-        </p>
-        <h1 className="gradient-text" style={{ fontSize: "2rem", fontWeight: 800, marginBottom: "32px" }}>
-          {fanDecoded}
-        </h1>
-        <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem", marginBottom: "24px" }}>
-          Mavzulardan birini tanlang
-        </p>
-      </motion.div>
+      <main className="flex-1 max-w-3xl w-full mx-auto px-4 py-8 pb-24">
+        {/* Back */}
+        <div className="mb-6">
+          <Link href="/" className="inline-block">
+            <button className="btn-ghost text-xs">
+              <ArrowLeft size={14} /> {lang === "uz" ? "Bosh sahifa" : "Главная"}
+            </button>
+          </Link>
+        </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-        {mavzular.map((mavzu, i) => {
-          const count = getSavollarSoni(fanDecoded, mavzu);
-          return (
-            <motion.div
-              key={mavzu}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35, delay: i * 0.07 }}
-            >
-              <Link
-                href={`/${encodeURIComponent(fanDecoded)}/${encodeURIComponent(mavzu)}`}
-                style={{ textDecoration: "none" }}
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <span className="text-xs font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400 bg-violet-500/10 px-3 py-1 rounded-full">
+            8-sinf • {fanDecoded}
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight mt-3 mb-2">
+            {fanDecoded}
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+            {lang === "uz" ? "Test topshirish uchun mavzulardan birini tanlang:" : "Выберите тему для прохождения теста:"}
+          </p>
+        </motion.div>
+
+        {/* Mavzular ro'yxati */}
+        <div className="space-y-3">
+          {mavzular.map((mavzu, i) => {
+            const count = getSavollarSoni(fanDecoded, mavzu);
+            return (
+              <motion.div
+                key={mavzu}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
               >
-                <div
-                  className="glass"
-                  style={{
-                    padding: "18px 20px",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "16px",
-                    cursor: "pointer",
-                    transition: "all 0.2s ease",
-                    borderRadius: "16px",
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLDivElement).style.transform = "translateX(6px)";
-                    (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(245,200,66,0.4)";
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLDivElement).style.transform = "translateX(0)";
-                    (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.08)";
-                  }}
+                <Link
+                  href={`/${encodeURIComponent(fanDecoded)}/${encodeURIComponent(mavzu)}`}
+                  className="block text-decoration-none group"
                 >
-                  <div
-                    style={{
-                      width: "36px",
-                      height: "36px",
-                      borderRadius: "10px",
-                      background: "rgba(245,200,66,0.12)",
-                      border: "1px solid rgba(245,200,66,0.25)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: "#f5c842",
-                      fontWeight: 700,
-                      fontSize: "0.85rem",
-                      flexShrink: 0,
-                    }}
-                  >
-                    {i + 1}
-                  </div>
-
-                  <BookMarked size={18} style={{ color: "var(--text-secondary)", flexShrink: 0 }} />
-
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 600, fontSize: "0.95rem", marginBottom: "2px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                      {mavzu}
+                  <div className="glass p-5 rounded-2xl flex items-center justify-between gap-4 group-hover:border-violet-500/50 group-hover:shadow-md transition-all">
+                    <div className="flex items-center gap-3.5 min-w-0">
+                      <div className="w-9 h-9 rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-400 font-extrabold text-sm flex items-center justify-center shrink-0">
+                        {i + 1}
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white truncate group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
+                          {mavzu}
+                        </h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          {count} {lang === "uz" ? "ta savol" : "вопросов"}
+                        </p>
+                      </div>
                     </div>
-                    <div style={{ color: "var(--text-secondary)", fontSize: "0.8rem" }}>
-                      {count} ta savol
+
+                    <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 group-hover:bg-violet-600 group-hover:text-white transition-all shrink-0">
+                      <ChevronRight size={16} />
                     </div>
                   </div>
-
-                  <ChevronRight size={18} style={{ color: "var(--text-secondary)", flexShrink: 0 }} />
-                </div>
-              </Link>
-            </motion.div>
-          );
-        })}
-      </div>
-    </main>
+                </Link>
+              </motion.div>
+            );
+          })}
+        </div>
+      </main>
+    </div>
   );
 }

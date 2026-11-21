@@ -9,10 +9,10 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Tarix Quiz — 8-sinf",
+  title: "Visola psi — Tarix Quiz",
   description:
-    "8-sinf o'quvchilari uchun O'zbekiston tarixi va Jahon tarixi bo'yicha interaktiv test platformasi. Mavzularni o'qib bo'lgach, bilimingizni sinab ko'ring!",
-  keywords: ["tarix", "quiz", "test", "8-sinf", "o'zbekiston tarixi", "jahon tarixi"],
+    "Visola psi: 8-sinf o'quvchilari uchun O'zbekiston tarixi va Jahon tarixi bo'yicha Gimkit & Kahoot formatidagi interaktiv test platformasi.",
+  keywords: ["Visola psi", "tarix", "quiz", "test", "8-sinf", "gimkit", "kahoot"],
 };
 
 export default function RootLayout({
@@ -21,7 +21,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="uz">
+    <html lang="uz" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                const t = localStorage.getItem('app_theme');
+                if (t === 'dark') {
+                  document.documentElement.classList.add('dark');
+                } else {
+                  document.documentElement.classList.remove('dark');
+                }
+              } catch (_) {}
+            `,
+          }}
+        />
+      </head>
       <body className={`${outfit.variable} font-outfit antialiased`}>
         {children}
       </body>

@@ -1,6 +1,5 @@
 import { create } from "zustand";
-import { QuizState, ShuffledQuestion, WrongAnswer } from "@/types";
-import { Question } from "@/types";
+import { QuizState, ShuffledQuestion, WrongAnswer, Question } from "@/types";
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -17,6 +16,8 @@ interface QuizStore extends QuizState {
   startQuiz: (questions: Question[], count: number) => void;
   answer: (index: number) => { correct: boolean; correctIndex: number };
   nextQuestion: () => void;
+  finishQuiz: () => void;
+  updateTimer: () => void;
   reset: () => void;
 }
 
@@ -28,6 +29,9 @@ const initialState: QuizState = {
   score: 0,
   wrong: [],
   totalCount: 0,
+  startTime: null,
+  endTime: null,
+  elapsedSeconds: 0,
 };
 
 export const useQuizStore = create<QuizStore>((set, get) => ({
@@ -46,7 +50,32 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       }));
       return { ...q, order: shuffle(indexed) };
     });
-    set({ quiz, index: 0, score: 0, wrong: [], totalCount: count });
+
+    const now = Date.now();
+    set({
+      quiz,
+      index: 0,
+      score: 0,
+      wrong: [],
+      totalCount: count,
+      startTime: now,
+      endTime: null,
+      elapsedSeconds: 0,
+    });
+  },
+
+  updateTimer: () => {
+    const { startTime, endTime } = get();
+    if (!startTime || endTime) return;
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    set({ elapsedSeconds: elapsed });
+  },
+
+  finishQuiz: () => {
+    const { startTime } = get();
+    const now = Date.now();
+    const elapsed = startTime ? Math.floor((now - startTime) / 1000) : 0;
+    set({ endTime: now, elapsedSeconds: elapsed });
   },
 
   answer: (chosenIndex) => {
