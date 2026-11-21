@@ -1,21 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  /* LIGHT MODE (Oq fon, binafsha, yashil, ko'k) */
-  --bg-primary: #f8fafc;
+  /* LIGHT MODE */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
   --bg-surface: #ffffff;
   --bg-card: #ffffff;
   --border: #e2e8f0;
   --border-strong: #0f172a;
   --text-primary: #0f172a;
-  --text-secondary: #475569;
+  --text-secondary: #334155;
   --text-muted: #64748b;
 
-  /* Gimkit Violet / Green / Blue */
-  --accent-violet: #7c3aed;
-  --accent-violet-hover: #6d28d9;
-  --accent-green: #10b981;
-  --accent-blue: #0284c7;
+  /* Gimkit Colors */
+  --gimkit-purple: #7c3aed;
+  --gimkit-purple-hover: #6d28d9;
+  --gimkit-dark: #0c192e;
 
   /* Kahoot ABCD */
   --opt-a: #ef4444;
@@ -29,19 +29,19 @@
 
 html.dark {
   /* DARK MODE */
-  --bg-primary: #0a0f1d;
-  --bg-surface: #111827;
+  --bg-primary: #090d16;
+  --bg-secondary: #0f172a;
+  --bg-surface: #131c2e;
   --bg-card: #131c2e;
   --border: rgba(255, 255, 255, 0.12);
-  --border-strong: rgba(255, 255, 255, 0.25);
+  --border-strong: rgba(255, 255, 255, 0.85);
   --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
 
-  --accent-violet: #8b5cf6;
-  --accent-violet-hover: #7c3aed;
-  --accent-green: #34d399;
-  --accent-blue: #38bdf8;
+  --gimkit-purple: #8b5cf6;
+  --gimkit-purple-hover: #7c3aed;
+  --gimkit-dark: #060b14;
 }
 
 * {
@@ -53,70 +53,72 @@ html.dark {
 html, body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  font-family: var(--font-outfit), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-outfit), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   min-height: 100vh;
   transition: background-color 0.2s ease, color 0.2s ease;
+  overflow-x: hidden;
 }
 
-/* Custom Scrollbar */
+/* Scrollbar */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg-primary); }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
 html.dark ::-webkit-scrollbar-thumb { background: #334155; }
 
-/* Gimkit Markaziy Karta (Hero Card) */
-.gimkit-hero-card {
+/* Gimkit 1-rasm Markaziy Karta */
+.gimkit-hero-box {
   background: var(--bg-card);
-  border: 3px solid var(--border-strong);
+  border: 3.5px solid var(--border-strong);
   border-radius: 36px;
-  box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.08);
-  position: relative;
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.15);
   width: 100%;
-  max-width: 680px;
-  margin: 0 auto;
+  max-width: 640px;
+  position: relative;
+  z-index: 20;
 }
 
-html.dark .gimkit-hero-card {
-  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.6);
+html.dark .gimkit-hero-box {
+  box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.7);
 }
 
 /* Gimkit Binafsha Tugma */
 .btn-gimkit {
-  background-color: #7c3aed;
+  background-color: #7c3aed !important;
   color: #ffffff !important;
-  font-weight: 700;
-  border-radius: 14px;
-  padding: 14px 28px;
-  font-size: 1rem;
+  font-weight: 800 !important;
+  border-radius: 16px;
+  padding: 16px 36px;
+  font-size: 1.05rem;
   border: none;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.35);
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  letter-spacing: -0.01em;
 }
 
 .btn-gimkit:hover {
-  background-color: #6d28d9;
+  background-color: #6d28d9 !important;
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(124, 58, 237, 0.45);
+  box-shadow: 0 12px 30px rgba(124, 58, 237, 0.5);
 }
 
 .btn-gimkit:active {
   transform: translateY(0);
 }
 
-/* Standart Ghost tugma */
+/* Ghost Tugma */
 .btn-ghost {
   background: transparent;
   color: var(--text-primary);
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border);
   border-radius: 12px;
   padding: 8px 16px;
   font-size: 0.88rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -126,30 +128,23 @@ html.dark .gimkit-hero-card {
 }
 
 .btn-ghost:hover {
-  background: rgba(148, 163, 184, 0.12);
+  background: rgba(148, 163, 184, 0.15);
   border-color: var(--text-muted);
 }
 
 /* Glass Karta */
 .glass {
   background: var(--bg-card);
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border);
   border-radius: 24px;
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
   transition: all 0.2s ease;
 }
 
 .glass:hover {
-  box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.1);
+  border-color: #7c3aed;
+  box-shadow: 0 15px 35px -10px rgba(124, 58, 237, 0.15);
   transform: translateY(-2px);
-}
-
-html.dark .glass {
-  box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.5);
-}
-
-html.dark .glass:hover {
-  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.7);
 }
 
 /* Modern Input */
@@ -158,28 +153,28 @@ html.dark .glass:hover {
   padding: 12px 16px;
   border-radius: 12px;
   background: var(--bg-surface);
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border);
   color: var(--text-primary);
-  font-size: 0.92rem;
+  font-size: 0.95rem;
   font-family: inherit;
   outline: none;
   transition: all 0.2s ease;
 }
 
 .modern-input:focus {
-  border-color: var(--accent-violet);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
 }
 
-/* ABCD Quiz Option Buttons */
+/* ABCD Quiz Buttons */
 .quiz-opt-btn {
   width: 100%;
   text-align: left;
-  border-radius: 18px;
-  padding: 16px 20px;
+  border-radius: 20px;
+  padding: 18px 22px;
   color: var(--text-primary);
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.05rem;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
@@ -187,26 +182,26 @@ html.dark .glass:hover {
   gap: 16px;
   background: var(--bg-card);
   border: 2px solid var(--border);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
 }
 
 .quiz-opt-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
 }
 
 .quiz-letter {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
-  font-size: 1.15rem;
+  font-weight: 900;
+  font-size: 1.25rem;
   flex-shrink: 0;
   color: #ffffff;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .opt-a .quiz-letter { background: #ef4444; }
@@ -215,22 +210,22 @@ html.dark .glass:hover {
 .opt-d .quiz-letter { background: #10b981; }
 
 .quiz-opt-btn.correct {
-  background: rgba(16, 185, 129, 0.12) !important;
+  background: rgba(16, 185, 129, 0.15) !important;
   border-color: #10b981 !important;
   color: #10b981 !important;
 }
 
 .quiz-opt-btn.wrong {
-  background: rgba(239, 68, 68, 0.12) !important;
+  background: rgba(239, 68, 68, 0.15) !important;
   border-color: #ef4444 !important;
   color: #ef4444 !important;
 }
 
 /* Progress bar */
 .progress-track {
-  background: rgba(148, 163, 184, 0.2);
+  background: rgba(148, 163, 184, 0.25);
   border-radius: 999px;
-  height: 8px;
+  height: 10px;
   overflow: hidden;
 }
 
