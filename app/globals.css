@@ -59,26 +59,48 @@ html, body {
   overflow-x: hidden;
 }
 
-/* Scrollbar */
+/* Custom Scrollbar */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg-primary); }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
 html.dark ::-webkit-scrollbar-thumb { background: #334155; }
 
-/* Gimkit 1-rasm Markaziy Karta */
+/* Aniq Markazlashtiruvchi Konteynerlar */
+.site-container {
+  width: 100%;
+  max-width: 1140px;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.center-flex {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Gimkit Markaziy Karta */
 .gimkit-hero-box {
   background: var(--bg-card);
   border: 3.5px solid var(--border-strong);
   border-radius: 36px;
-  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.12);
   width: 100%;
-  max-width: 640px;
+  max-width: 660px;
+  margin-left: auto;
+  margin-right: auto;
   position: relative;
   z-index: 20;
 }
 
 html.dark .gimkit-hero-box {
-  box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7);
 }
 
 /* Gimkit Binafsha Tugma */
@@ -97,7 +119,6 @@ html.dark .gimkit-hero-box {
   gap: 10px;
   box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  letter-spacing: -0.01em;
 }
 
 .btn-gimkit:hover {
@@ -110,7 +131,7 @@ html.dark .gimkit-hero-box {
   transform: translateY(0);
 }
 
-/* Ghost Tugma */
+/* Standart Ghost tugma */
 .btn-ghost {
   background: transparent;
   color: var(--text-primary);
