@@ -265,7 +265,7 @@ export default function AdminPage() {
             </div>
 
             <div className="text-center mb-8">
-              <div className="relative inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-500 text-white shadow-lg shadow-violet-500/30 mb-4">
+              <div className="relative inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-linear-to-tr from-violet-600 to-indigo-500 text-white shadow-lg shadow-violet-500/30 mb-4">
                 <KeyRound size={26} />
               </div>
               <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-2">
@@ -368,7 +368,7 @@ export default function AdminPage() {
             <button
               onClick={handleSyncToSupabase}
               disabled={syncing}
-              className="btn-primary text-xs whitespace-nowrap bg-gradient-to-r from-amber-500 to-orange-500 shadow-amber-500/30"
+              className="btn-primary text-xs whitespace-nowrap bg-linear-to-r from-amber-500 to-orange-500 shadow-amber-500/30"
             >
               {syncing ? (
                 <>

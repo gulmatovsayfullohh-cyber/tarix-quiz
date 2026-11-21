@@ -9,7 +9,7 @@ export const t = {
       start: "Boshlash",
     },
     hero: {
-      badge: "Yangi bosqich • Gimkit & Kahoot formatida",
+      badge: "Yangi bosqich • Interaktiv tarix formatida",
       title: "Keyingi bosqich.",
       greeting: "Salom, men Visolaman! Ushbu platformani tarix fanini qiziqarli, interaktiv va oson o'rganishingiz uchun yaratdim.",
       desc: "O'yinlar va qiziqarli testlar orqali darslar zerikarli bo'lmaydi. Maktabda yoki uyda do'stlaringiz bilan birgalikda o'z bilimingizni sinab ko'ring!",
@@ -88,7 +88,7 @@ export const t = {
     },
     footer: {
       rights: "Barcha huquqlar himoyalangan.",
-      builtWith: "Visola psi — Gimkit & Kahoot formatidagi interaktiv ta'lim platformasi.",
+      builtWith: "Visola psi — zamonaviy interaktiv ta'lim platformasi.",
     },
   },
   ru: {
@@ -101,7 +101,7 @@ export const t = {
       start: "Начать",
     },
     hero: {
-      badge: "Новый уровень • В формате Gimkit & Kahoot",
+      badge: "Новый уровень • В интерактивном формате",
       title: "Новый уровень.",
       greeting: "Привет, я Висола! Я создала эту платформу, чтобы сделать изучение истории увлекательным, интерактивным и простым.",
       desc: "Благодаря играм и увлекательным тестам уроки никогда не будут скучными. Проверьте свои знания в школе или дома вместе с друзьями!",
@@ -180,7 +180,7 @@ export const t = {
     },
     footer: {
       rights: "Все права защищены.",
-      builtWith: "Visola psi — образовательная платформа в формате Gimkit & Kahoot.",
+      builtWith: "Visola psi — современная интерактивная образовательная платформа.",
     },
   },
 };

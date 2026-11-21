@@ -131,6 +131,35 @@ html.dark .gimkit-hero-box {
   transform: translateY(0);
 }
 
+/* Primary action button */
+.btn-primary {
+  background: linear-gradient(135deg, #047857 0%, #1d4ed8 100%) !important;
+  color: #ffffff !important;
+  font-weight: 800;
+  border: 0;
+  border-radius: 14px;
+  padding: 11px 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.22);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  filter: saturate(1.12);
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.28);
+}
+
+.btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
 /* Standart Ghost tugma */
 .btn-ghost {
   background: transparent;
@@ -166,6 +195,19 @@ html.dark .gimkit-hero-box {
   border-color: #7c3aed;
   box-shadow: 0 15px 35px -10px rgba(124, 58, 237, 0.15);
   transform: translateY(-2px);
+}
+
+/* Clean bordered card / legacy liquid effect */
+.liquid-border {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: var(--bg-card);
+  box-shadow: 0 18px 45px -28px rgba(15, 23, 42, 0.35);
+}
+
+html.dark .liquid-border {
+  box-shadow: 0 18px 45px -28px rgba(0, 0, 0, 0.85);
 }
 
 /* Modern Input */
@@ -255,4 +297,34 @@ html.dark .gimkit-hero-box {
   background: linear-gradient(90deg, #7c3aed, #10b981);
   border-radius: 999px;
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hero Grid Background */
+.hero-grid {
+  background-image:
+    linear-gradient(rgba(124, 58, 237, 0.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124, 58, 237, 0.16) 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: linear-gradient(to bottom, black 10%, transparent 92%);
+}
+
+/* Selection and responsive polish */
+button, a, input, select, textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: rgba(16, 185, 129, 0.22);
+}
+
+@media (max-width: 640px) {
+  .site-container {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .glass,
+  .liquid-border {
+    border-radius: 18px;
+  }
 }

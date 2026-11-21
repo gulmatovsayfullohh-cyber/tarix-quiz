@@ -164,7 +164,7 @@ export default function StatsPage() {
             </div>
 
             <div className="text-center mb-8">
-              <div className="relative inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white shadow-lg shadow-emerald-500/30 mb-4">
+              <div className="relative inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-linear-to-tr from-emerald-600 to-teal-500 text-white shadow-lg shadow-emerald-500/30 mb-4">
                 <BarChart2 size={26} />
               </div>
               <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-2">
@@ -358,7 +358,7 @@ export default function StatsPage() {
                     const pct = Math.round((r.score / r.total) * 100);
                     const date = new Date(r.taken_at);
                     return (
-                      <div key={r.id} className="p-4 flex items-center justify-between gap-3 text-xs hover:bg-slate-100/50 dark:hover:bg-white/[0.02] transition-colors">
+                      <div key={r.id} className="p-4 flex items-center justify-between gap-3 text-xs hover:bg-slate-100/50 dark:hover:bg-white/2 transition-colors">
                         <div className="flex items-center gap-3 min-w-0">
                           <span className="w-12 font-black text-center py-1 rounded-lg bg-slate-100 dark:bg-white/10" style={{ color: pctColor(pct) }}>
                             {pct}%

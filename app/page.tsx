@@ -24,253 +24,150 @@ import { getFanlar, getSavollarSoni, getMavzular } from "@/lib/questions";
 
 export default function HomePage() {
   const { lang } = useSettingsStore();
-  const strings = t[lang];
   const fanlar = getFanlar();
+  const uz = lang === "uz";
+
+  const hero = {
+    badge: uz ? "8-sinf uchun interaktiv tarix platformasi" : "Интерактивная история для 8-го класса",
+    titleA: uz ? "Tarixni " : "Изучайте ",
+    titleB: uz ? "qiziqarli o'rganing" : "историю с интересом",
+    desc: uz
+      ? "Mavzular, testlar, vaqt va natijalarni bir joyda boshqaradigan zamonaviy o‘quv platformasi."
+      : "Современная учебная платформа для тем, тестов, времени и результатов в одном месте.",
+    cta: uz ? "Testni boshlash" : "Начать тест",
+  };
+
+  const features = uz
+    ? [
+        ["ABCD testlari", "Har bir savolda to‘rt aniq variant va tez javob"],
+        ["Jonli vaqt", "Test boshlanishi va tugashigacha avtomatik sekundamer"],
+        ["Ayrim natijalar", "To‘g‘ri javoblar, xatolar va umumiy foizni ko‘ring"],
+        ["O‘zbek va rus", "Butun platformani o‘zingizga qulay tilda ishlating"],
+      ]
+    : [
+        ["Тесты ABCD", "Четыре варианта в каждом вопросе и быстрый ответ"],
+        ["Живое время", "Автоматический таймер от начала до конца теста"],
+        ["Подробные результаты", "Правильные ответы, ошибки и общий процент"],
+        ["Узбекский и русский", "Используйте всю платформу на удобном языке"],
+      ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-slate-950 transition-colors">
+    <div className="min-h-screen bg-white text-slate-950 dark:bg-slate-950 dark:text-white">
       <Navbar />
 
-      <main className="flex-1 w-full flex flex-col items-center">
+      <main>
         {/* =========================================================
-            SECTION 1: HERO (Gimkit Next Level - Markaziy Oq Karta)
+            SECTION 1: HERO (Chiroyli va zamonaviy kirish ekran)
            ========================================================= */}
-        <section className="w-full flex flex-col items-center justify-center px-4 py-14 sm:py-20 md:py-24 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-white/10 relative overflow-hidden text-center">
-          {/* Subtle Ambient Glow */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[350px] bg-violet-500/10 dark:bg-violet-600/15 rounded-full blur-3xl pointer-events-none -z-10" />
+        <section className="relative overflow-hidden border-b border-slate-200/70 px-4 py-16 sm:py-20 lg:py-24 dark:border-white/10">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(16,185,129,.12),transparent_24%),radial-gradient(circle_at_85%_25%,rgba(37,99,235,.12),transparent_28%)]" />
+          <div className="absolute -left-20 top-32 h-56 w-56 rounded-full bg-emerald-300/10 blur-3xl" />
 
-          {/* Markaziy Gimkit Oq Karta */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 15 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="gimkit-hero-box p-6 sm:p-10 md:p-12 text-center mx-auto"
-          >
-            {/* Title: Next level. */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-slate-950 dark:text-white tracking-tight mb-5 text-center">
-              {strings.hero.title}
-            </h1>
+          <div className="site-container relative grid items-center gap-12 lg:grid-cols-[1.08fr_.92fr]">
+            <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-50 px-3.5 py-2 text-xs font-extrabold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
+                <Sparkles size={15} />
+                {hero.badge}
+              </div>
 
-            {/* Greeting */}
-            <div className="space-y-3.5 text-sm sm:text-base md:text-lg text-slate-700 dark:text-slate-300 font-medium leading-relaxed mb-7 max-w-xl mx-auto text-center">
-              <p>{strings.hero.greeting}</p>
-              <p>{strings.hero.desc}</p>
-              <p className="font-bold text-slate-900 dark:text-white">
-                {lang === "uz" ? "Sinab ko'rishga tayyormisiz?" : "Попробуйте прямо сейчас!"}
-              </p>
-            </div>
+              <h1 className="max-w-3xl text-5xl font-black leading-[.95] tracking-[-0.045em] sm:text-6xl lg:text-[76px]">
+                {hero.titleA}
+                <span className="block bg-linear-to-r from-emerald-600 via-sky-600 to-blue-700 bg-clip-text text-transparent">{hero.titleB}</span>
+              </h1>
 
-            {/* Author info (Visola) */}
-            <div className="flex items-center justify-center gap-3 mb-7">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-violet-600 to-indigo-500 p-0.5 shadow-md shrink-0">
-                <div className="w-full h-full rounded-full bg-white dark:bg-slate-900 flex items-center justify-center font-black text-violet-600 text-sm">
-                  V
+              <p className="mt-6 max-w-xl text-base leading-7 text-slate-600 sm:text-lg dark:text-slate-300">{hero.desc}</p>
+
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Link href="#subjects" className="sm:w-auto">
+                  <button className="btn-primary min-h-14 w-full px-7 text-base sm:w-auto">
+                    <Gamepad2 size={20} />
+                    {hero.cta}
+                    <ArrowRight size={18} />
+                  </button>
+                </Link>
+                <Link href="/statistika" className="sm:w-auto">
+                  <button className="btn-ghost min-h-14 w-full px-6 sm:w-auto">
+                    <BarChart2 size={18} />
+                    {uz ? "Natijalar" : "Результаты"}
+                  </button>
+                </Link>
+              </div>
+
+              <div className="mt-7 flex flex-wrap gap-3 text-xs font-bold text-slate-600 dark:text-slate-300">
+                {[
+                  [CheckCircle2, uz ? "ABCD variantlar" : "Варианты ABCD", "text-emerald-500"],
+                  [Timer, uz ? "Jonli timer" : "Живой таймер", "text-sky-500"],
+                  [Trophy, uz ? "To‘liq natija" : "Полный результат", "text-amber-500"],
+                ].map(([Icon, label, color]) => {
+                  const ItemIcon = Icon as typeof CheckCircle2;
+                  return (
+                    <span key={String(label)} className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 dark:border-white/10 dark:bg-white/5">
+                      <ItemIcon size={15} className={String(color)} /> {String(label)}
+                    </span>
+                  );
+                })}
+              </div>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, scale: .96, x: 20 }} animate={{ opacity: 1, scale: 1, x: 0 }} transition={{ duration: .55, delay: .12 }} className="relative mx-auto w-full max-w-130">
+              <div className="absolute -inset-5 rounded-[36px] bg-linear-to-br from-emerald-300/20 via-sky-300/10 to-blue-300/20 blur-2xl" />
+              <div className="relative rounded-[30px] border border-slate-200 bg-slate-950 p-4 shadow-[0_30px_80px_-30px_rgba(15,23,42,.75)] sm:p-5">
+                <div className="mb-4 flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[.2em] text-emerald-400">Visola psi</p>
+                    <p className="mt-1 text-sm font-bold text-white">{uz ? "Amir Temur davri" : "Эпоха Амира Темура"}</p>
+                  </div>
+                  <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-2 text-xs font-black text-white"><Timer size={14} className="text-sky-400" /> 00:42</div>
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-white/7 p-5 text-center text-sm font-extrabold leading-relaxed text-white sm:text-base">
+                  {uz ? "Amir Temur 1370-yilda qaysi shaharni poytaxt qilgan?" : "Какой город Амир Темур сделал столицей в 1370 году?"}
+                </div>
+
+                <div className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                  {[
+                    ["A", uz ? "Koshon" : "Кашан", "bg-rose-500"],
+                    ["B", uz ? "Andijon" : "Андижан", "bg-blue-600"],
+                    ["C", uz ? "Samarqand" : "Самарканд", "bg-emerald-600 ring-2 ring-emerald-300/70"],
+                    ["D", uz ? "Buxoro" : "Бухара", "bg-amber-500"],
+                  ].map(([letter, answer, color]) => (
+                    <div key={letter} className={`flex items-center gap-3 rounded-xl ${color} p-3 text-xs font-bold text-white sm:text-sm`}>
+                      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-black/20 font-black">{letter}</span>
+                      <span>{answer}</span>
+                      {letter === "C" && <CheckCircle2 size={16} className="ml-auto" />}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-4 flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2.5">
+                  <span className="text-xs font-bold text-slate-400">5 / 10</span>
+                  <div className="h-2 w-32 overflow-hidden rounded-full bg-white/10"><div className="h-full w-1/2 rounded-full bg-linear-to-r from-emerald-400 to-sky-400" /></div>
                 </div>
               </div>
-              <div className="text-left">
-                <div className="font-extrabold text-sm text-slate-900 dark:text-white flex items-center gap-1.5">
-                  — Visola <Sparkles size={14} className="text-amber-500" />
-                </div>
-                <div className="text-xs text-slate-500 font-medium">
-                  {lang === "uz" ? "Platforma muallifi" : "Создатель платформы"}
-                </div>
-              </div>
-            </div>
-
-            {/* Big Purple Button */}
-            <div className="mb-7 flex justify-center">
-              <Link href="#subjects" className="w-full sm:w-auto">
-                <button className="btn-gimkit w-full sm:w-auto py-3.5 px-9 text-base sm:text-lg rounded-2xl shadow-xl shadow-violet-600/30">
-                  <Gamepad2 size={20} />
-                  <span>{strings.hero.cta}</span>
-                </button>
-              </Link>
-            </div>
-
-            {/* 3 ta pastki link: Test, Admin, Stats */}
-            <div className="flex items-center justify-center gap-6 pt-5 border-t border-slate-200 dark:border-white/10 text-xs sm:text-sm font-bold">
-              <Link
-                href="#subjects"
-                className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
-              >
-                <Gamepad2 size={16} className="text-violet-600" />
-                <span>{strings.hero.fastLinks.test}</span>
-              </Link>
-              <Link
-                href="/admin"
-                className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-amber-500 transition-colors"
-              >
-                <Settings size={16} className="text-amber-500" />
-                <span>{strings.hero.fastLinks.admin}</span>
-              </Link>
-              <Link
-                href="/statistika"
-                className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-emerald-500 transition-colors"
-              >
-                <BarChart2 size={16} className="text-emerald-500" />
-                <span>{strings.hero.fastLinks.stats}</span>
-              </Link>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </section>
 
         {/* =========================================================
             SECTION 2: ANSWER & PHONE MOCKUP (Interaktiv Showcase)
            ========================================================= */}
-        <section className="w-full bg-white dark:bg-slate-900 py-16 sm:py-20 md:py-24 px-4 border-b border-slate-200 dark:border-white/10 flex flex-col items-center justify-center">
-          <div className="site-container flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-16 mx-auto">
-            {/* Left Text */}
-            <div className="max-w-lg space-y-5 text-center lg:text-left">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20">
-                <Sparkles size={14} />
-                {lang === "uz" ? "Interaktiv ta'lim" : "Интерактивное обучение"}
-              </span>
-
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
-                {strings.features.section1Title}
-              </h2>
-
-              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
-                {strings.features.section1Desc}
-              </p>
-
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 pt-2">
-                <div className="flex items-center gap-2.5 font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200 dark:border-white/10 w-full sm:w-auto">
-                  <CheckCircle2 size={18} className="text-emerald-500 shrink-0" />
-                  <span>{lang === "uz" ? "Aniq ABCD variantlari" : "Четкие варианты ABCD"}</span>
-                </div>
-                <div className="flex items-center gap-2.5 font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200 dark:border-white/10 w-full sm:w-auto">
-                  <Timer size={18} className="text-violet-600 shrink-0" />
-                  <span>{lang === "uz" ? "Jonli sekundamer" : "Живой секундомер"}</span>
-                </div>
-              </div>
+        <section className="border-b border-slate-200 px-4 py-16 dark:border-white/10 sm:py-20">
+          <div className="site-container">
+            <div className="mx-auto max-w-2xl text-center">
+              <span className="text-xs font-black uppercase tracking-[.18em] text-emerald-600">Visola psi</span>
+              <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-5xl">{uz ? "O‘quvni oddiy va natijali qiling" : "Сделайте обучение простым и эффективным"}</h2>
             </div>
 
-            {/* Right: Realistic iPhone Mockup */}
-            <div className="flex justify-center shrink-0">
-              <div className="w-[290px] sm:w-[310px] rounded-[48px] border-[5px] border-slate-900 dark:border-slate-700 bg-slate-950 p-3 shadow-2xl shadow-slate-950/20 relative">
-                {/* Dynamic Island Notch */}
-                <div className="w-24 h-4 bg-black rounded-full mx-auto mb-3 flex items-center justify-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-slate-800" />
-                </div>
-
-                {/* Inner Screen */}
-                <div className="bg-slate-900 rounded-[36px] p-3.5 text-white space-y-3 border border-white/5">
-                  {/* Screen Header */}
-                  <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 px-1">
-                    <span className="truncate max-w-[150px]">O&apos;zbekiston tarixi</span>
-                    <span className="flex items-center gap-1 text-violet-400 font-mono">
-                      <Timer size={12} /> 00:45
-                    </span>
+            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {features.map(([title, text], index) => (
+                <motion.div key={title} initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * .06 }} className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-slate-900">
+                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+                    {index === 0 ? <BookOpen size={20} /> : index === 1 ? <Timer size={20} /> : index === 2 ? <Award size={20} /> : <Globe2 size={20} />}
                   </div>
-
-                  {/* Question Box */}
-                  <div className="p-3.5 rounded-2xl bg-white/10 border border-white/10 text-center font-bold text-xs text-white shadow-sm leading-snug">
-                    Sulton Muhammad Xorazmshoh qaysi suloladan bo&apos;lgan?
-                  </div>
-
-                  {/* 4 Colored ABCD Buttons */}
-                  <div className="space-y-2">
-                    <div className="p-2.5 rounded-xl bg-rose-500 text-white font-bold text-xs flex items-center gap-2 shadow">
-                      <span className="w-5 h-5 rounded-md bg-black/25 flex items-center justify-center font-black text-[11px]">A</span>
-                      <span className="truncate">Afrig&apos;iylar</span>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-blue-600 text-white font-bold text-xs flex items-center gap-2 shadow">
-                      <span className="w-5 h-5 rounded-md bg-black/25 flex items-center justify-center font-black text-[11px]">B</span>
-                      <span className="truncate">Oltintoshiylar</span>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-amber-500 text-white font-bold text-xs flex items-center gap-2 shadow">
-                      <span className="w-5 h-5 rounded-md bg-black/25 flex items-center justify-center font-black text-[11px]">C</span>
-                      <span className="truncate">Ma&apos;muniylar</span>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-emerald-600 text-white font-bold text-xs flex items-center gap-2 shadow ring-2 ring-emerald-400">
-                      <span className="w-5 h-5 rounded-md bg-black/25 flex items-center justify-center font-black text-[11px]">D</span>
-                      <span className="flex-1 truncate">Anushteginiylar</span>
-                      <CheckCircle2 size={15} className="shrink-0" />
-                    </div>
-                  </div>
-
-                  {/* Home Indicator */}
-                  <div className="w-24 h-1 bg-white/30 rounded-full mx-auto pt-0.5 mt-2" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* =========================================================
-            SECTION 3: DOIM YANGI FORMATLAR (Dark Navy Minimalist)
-           ========================================================= */}
-        <section className="w-full bg-[#0c192e] text-white py-16 sm:py-20 md:py-24 px-4 flex flex-col items-center justify-center">
-          <div className="site-container flex flex-col items-center justify-center text-center space-y-12 mx-auto">
-            {/* Header */}
-            <div className="max-w-2xl mx-auto space-y-3">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-center">
-                {strings.features.section3Title}
-              </h2>
-              <p className="text-sm sm:text-base text-slate-300 leading-relaxed text-center">
-                {strings.features.section3Desc}
-              </p>
-            </div>
-
-            {/* 3 ta Karta (Grid orqali teng kenglik va balandlik) */}
-            <div className="w-full max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Card 1 */}
-              <div className="p-6 rounded-2xl bg-slate-800/80 border border-slate-700/80 flex flex-col items-center text-center space-y-3.5 hover:border-violet-500/60 hover:-translate-y-1 transition-all shadow-lg">
-                <div className="w-12 h-12 rounded-xl bg-violet-500/20 text-violet-400 flex items-center justify-center mx-auto">
-                  <Compass size={24} />
-                </div>
-                <h3 className="text-lg font-bold text-white">
-                  {lang === "uz" ? "O'zbekiston tarixi" : "История Узбекистана"}
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed flex-1">
-                  {lang === "uz"
-                    ? "Xorazm davlati, Chingizxon istilosi, Jaloliddin jasorati va Amir Temur saltanati."
-                    : "Государство Хорезмшахов, походы Чингисхана, подвиг Джалолиддина и эпоха Амира Темура."}
-                </p>
-                <div className="text-xs font-semibold text-violet-400 flex items-center justify-center gap-1 pt-1">
-                  <span>8-sinf darsligi</span>
-                  <ChevronRight size={13} />
-                </div>
-              </div>
-
-              {/* Card 2 */}
-              <div className="p-6 rounded-2xl bg-slate-800/80 border border-slate-700/80 flex flex-col items-center text-center space-y-3.5 hover:border-sky-500/60 hover:-translate-y-1 transition-all shadow-lg">
-                <div className="w-12 h-12 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center mx-auto">
-                  <Globe2 size={24} />
-                </div>
-                <h3 className="text-lg font-bold text-white">
-                  {lang === "uz" ? "Jahon tarixi" : "Всемирная история"}
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed flex-1">
-                  {lang === "uz"
-                    ? "Buyuk Fransuz inqilobi, Bastiliya qamali, jahon urushlari va sanoat inqilobi."
-                    : "Великая Французская революция, взятие Бастилии, мировые войны и промышленный прогресс."}
-                </p>
-                <div className="text-xs font-semibold text-sky-400 flex items-center justify-center gap-1 pt-1">
-                  <span>8-sinf darsligi</span>
-                  <ChevronRight size={13} />
-                </div>
-              </div>
-
-              {/* Card 3 */}
-              <div className="p-6 rounded-2xl bg-slate-800/80 border border-slate-700/80 flex flex-col items-center text-center space-y-3.5 hover:border-emerald-500/60 hover:-translate-y-1 transition-all shadow-lg">
-                <div className="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
-                  <Trophy size={24} />
-                </div>
-                <h3 className="text-lg font-bold text-white">
-                  {lang === "uz" ? "Vaqt bilan poyga" : "Гонка со временем"}
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed flex-1">
-                  {lang === "uz"
-                    ? "Har bir testda sekundamer ishlaydi. Eng kam vaqtda 100% to'g'ri natija ko'rsating!"
-                    : "В каждом тесте работает секундомер. Покажите 100% результат за минимальное время!"}
-                </p>
-                <div className="text-xs font-semibold text-emerald-400 flex items-center justify-center gap-1 pt-1">
-                  <span>Sekundamer nazorati</span>
-                  <ChevronRight size={13} />
-                </div>
-              </div>
+                  <h3 className="text-base font-extrabold">{title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">{text}</p>
+                </motion.div>
+              ))}
             </div>
           </div>
         </section>
@@ -278,63 +175,32 @@ export default function HomePage() {
         {/* =========================================================
             SECTION 4: FANLARNI TANLASH (#subjects - 2 ta Karta)
            ========================================================= */}
-        <section id="subjects" className="w-full py-16 sm:py-20 md:py-24 px-4 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-white/10 flex flex-col items-center justify-center scroll-mt-16">
-          <div className="site-container flex flex-col items-center justify-center text-center space-y-12 mx-auto">
-            {/* Header */}
-            <div className="max-w-xl mx-auto space-y-2.5">
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20">
-                <Sparkles size={13} />
-                {lang === "uz" ? "8-sinf • Tarix fanlari" : "8 класс • Предметы истории"}
-              </span>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
-                {strings.subjects.title}
-              </h2>
-              <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">
-                {strings.subjects.subtitle}
-              </p>
+        <section id="subjects" className="bg-slate-50 px-4 py-16 dark:bg-slate-950 sm:py-20 scroll-mt-16">
+          <div className="site-container">
+            <div className="mx-auto max-w-2xl text-center">
+              <span className="inline-flex items-center gap-2 rounded-full border border-sky-500/20 bg-sky-50 px-3 py-1.5 text-xs font-bold text-sky-700 dark:bg-sky-500/10 dark:text-sky-300"><Compass size={14} /> 8-sinf</span>
+              <h2 className="mt-4 text-3xl font-black tracking-tight sm:text-5xl">{uz ? "Fanni tanlang" : "Выберите предмет"}</h2>
+              <p className="mt-3 text-sm text-slate-500 sm:text-base dark:text-slate-400">{uz ? "Tarix yo‘nalishini tanlab, mavzu bo‘yicha testni boshlang." : "Выберите направление истории и начните тест по теме."}</p>
             </div>
 
-            {/* 2 ta Fan Kartasi (Grid orqali tenglik va simmetriya) */}
-            <div className="w-full max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+            <div className="mx-auto mt-10 grid max-w-4xl gap-5 md:grid-cols-2">
               {fanlar.map((fan) => {
                 const isUzb = fan.includes("O'zbekiston");
-                const mavzuCount = getMavzular(fan).length;
-                const savolCount = getSavollarSoni(fan);
-
                 return (
-                  <div
-                    key={fan}
-                    className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-white/10 rounded-3xl p-7 hover:border-violet-500 hover:shadow-xl transition-all flex flex-col justify-between space-y-6"
-                  >
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
-                          isUzb
-                            ? "bg-amber-500/15 text-amber-500"
-                            : "bg-sky-500/15 text-sky-500"
-                        }`}>
-                          {isUzb ? <BookOpen size={24} /> : <Globe2 size={24} />}
-                        </div>
-                        <span className="text-xs font-bold px-3 py-1 rounded-full bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300">
-                          {mavzuCount} {strings.subjects.topicsCount} • {savolCount} {strings.subjects.questionsCount}
-                        </span>
+                  <motion.div key={fan} whileHover={{ y: -4 }} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-slate-900">
+                    <div className="flex items-start justify-between">
+                      <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${isUzb ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10" : "bg-sky-50 text-sky-600 dark:bg-sky-500/10"}`}>
+                        {isUzb ? <LandmarkIcon /> : <Globe2 size={24} />}
                       </div>
-
-                      <h3 className="text-2xl font-black text-slate-900 dark:text-white">
-                        {fan}
-                      </h3>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                        {isUzb ? strings.subjects.uzbDesc : strings.subjects.worldDesc}
-                      </p>
+                      <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-600 dark:bg-white/10 dark:text-slate-300">{getMavzular(fan).length} {uz ? "mavzu" : "тем"}</span>
                     </div>
-
-                    <Link href={`/${encodeURIComponent(fan)}`} className="w-full block">
-                      <button className="btn-gimkit w-full py-3.5 rounded-xl font-bold flex items-center justify-center gap-2">
-                        <span>{strings.subjects.startTest}</span>
-                        <ArrowRight size={18} />
-                      </button>
-                    </Link>
-                  </div>
+                    <h3 className="mt-5 text-2xl font-black">{fan}</h3>
+                    <p className="mt-2 min-h-12 text-sm leading-6 text-slate-500 dark:text-slate-400">{isUzb ? (uz ? "O‘zbekiston davlati, sulolalari va tarixiy voqealar." : "Государство Узбекистана, династии и исторические события.") : (uz ? "Jahon tarixidagi muhim davrlar, inqiloblar va urushlar." : "Важные эпохи мировой истории, революции и войны.")}</p>
+                    <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-white/10">
+                      <span className="text-xs font-bold text-slate-400">{getSavollarSoni(fan)} {uz ? "savol" : "вопросов"}</span>
+                      <Link href={`/${encodeURIComponent(fan)}`}><button className="btn-primary px-4 py-2.5 text-sm"><span>{uz ? "Boshlash" : "Начать"}</span><ArrowRight size={16} /></button></Link>
+                    </div>
+                  </motion.div>
                 );
               })}
             </div>
@@ -344,7 +210,7 @@ export default function HomePage() {
         {/* =========================================================
             SECTION 5: BOTTOM GAME ON CTA (Dark Minimalist Banner)
            ========================================================= */}
-        <section className="w-full bg-slate-950 text-white py-16 sm:py-20 px-4 border-t border-slate-800 flex flex-col items-center justify-center text-center">
+        <section className="w-full bg-linear-to-r from-emerald-600 via-sky-600 to-blue-700 text-white py-16 sm:py-20 px-4 border-t border-white/10 flex flex-col items-center justify-center text-center">
           <div className="max-w-2xl mx-auto space-y-5 flex flex-col items-center text-center">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-center">
               {lang === "uz" ? "Boshlashga tayyormisiz?" : "Готовы начать?"}
@@ -358,7 +224,7 @@ export default function HomePage() {
               <Link href="#subjects">
                 <button className="btn-gimkit px-9 py-3.5 text-base rounded-2xl shadow-xl shadow-violet-600/40">
                   <Zap size={18} />
-                  <span>{strings.hero.cta}</span>
+                  <span>{hero.cta}</span>
                 </button>
               </Link>
             </div>
@@ -367,15 +233,17 @@ export default function HomePage() {
       </main>
 
       {/* Footer */}
-      <footer className="w-full bg-slate-950 text-slate-500 py-10 px-4 border-t border-slate-900 text-xs text-center space-y-3.5 flex flex-col items-center justify-center">
-        <div className="flex items-center justify-center gap-6 font-semibold">
-          <Link href="#subjects" className="hover:text-white transition-colors">{strings.nav.test}</Link>
-          <Link href="/admin" className="hover:text-white transition-colors">{strings.nav.admin}</Link>
-          <Link href="/statistika" className="hover:text-white transition-colors">{strings.nav.stats}</Link>
+      <footer className="border-t border-slate-800 bg-slate-950 px-4 py-8 text-center text-slate-400">
+        <div className="site-container">
+          <div className="mb-4 flex items-center justify-center gap-2 text-lg font-black text-white"><Sparkles size={18} className="text-emerald-400" />Visola psi</div>
+          <div className="flex flex-wrap justify-center gap-5 text-xs font-bold"><Link href="#subjects" className="hover:text-white">{uz ? "Test" : "Тест"}</Link><Link href="/admin" className="hover:text-white">{uz ? "Admin panel" : "Админ Панель"}</Link><Link href="/statistika" className="hover:text-white">{uz ? "Statistika" : "Статистика"}</Link></div>
+          <p className="mt-5 text-[11px]">© 2026 Visola psi. {uz ? "Barcha huquqlar himoyalangan." : "Все права защищены."}</p>
         </div>
-        <p>© 2026 Visola psi. {strings.footer.rights}</p>
-        <p className="text-[11px] text-slate-600">{strings.footer.builtWith}</p>
       </footer>
     </div>
   );
+}
+
+function LandmarkIcon() {
+  return <BookOpen size={24} />;
 }

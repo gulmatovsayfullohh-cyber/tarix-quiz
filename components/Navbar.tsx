@@ -31,7 +31,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         {/* Logo / Brand */}
         <Link href="/" className="flex items-center gap-2 group text-decoration-none">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-violet-600 via-indigo-600 to-emerald-500 flex items-center justify-center text-white shadow-md shadow-violet-500/25 group-hover:scale-105 transition-transform">
+          <div className="w-9 h-9 rounded-xl bg-linear-to-tr from-emerald-500 via-sky-500 to-violet-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform">
             <Sparkles size={20} />
           </div>
           <span className="font-extrabold text-xl sm:text-2xl tracking-tight text-slate-900 dark:text-white uppercase font-sans">
