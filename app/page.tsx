@@ -59,11 +59,11 @@ export default function HomePage() {
         {/* =========================================================
             SECTION 1: HERO (Chiroyli va zamonaviy kirish ekran)
            ========================================================= */}
-        <section className="relative overflow-hidden border-b border-slate-200/70 px-4 py-16 sm:py-20 lg:py-24 dark:border-white/10">
+        <section className="relative overflow-hidden border-b border-slate-200/70 px-4 py-20 sm:py-24 lg:py-28 dark:border-white/10">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(16,185,129,.12),transparent_24%),radial-gradient(circle_at_85%_25%,rgba(37,99,235,.12),transparent_28%)]" />
           <div className="absolute -left-20 top-32 h-56 w-56 rounded-full bg-emerald-300/10 blur-3xl" />
 
-          <div className="site-container relative grid items-center gap-12 lg:grid-cols-[1.08fr_.92fr]">
+          <div className="site-container relative grid items-center gap-16 lg:grid-cols-[1.08fr_.92fr] lg:gap-20">
             <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
               <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-50 px-3.5 py-2 text-xs font-extrabold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
                 <Sparkles size={15} />
@@ -77,7 +77,7 @@ export default function HomePage() {
 
               <p className="mt-6 max-w-xl text-base leading-7 text-slate-600 sm:text-lg dark:text-slate-300">{hero.desc}</p>
 
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-9 flex flex-col gap-4 sm:flex-row">
                 <Link href="#subjects" className="sm:w-auto">
                   <button className="btn-primary min-h-14 w-full px-7 text-base sm:w-auto">
                     <Gamepad2 size={20} />
@@ -151,14 +151,14 @@ export default function HomePage() {
         {/* =========================================================
             SECTION 2: ANSWER & PHONE MOCKUP (Interaktiv Showcase)
            ========================================================= */}
-        <section className="border-b border-slate-200 px-4 py-16 dark:border-white/10 sm:py-20">
+        <section className="border-b border-slate-200 px-4 py-20 dark:border-white/10 sm:py-24 lg:py-28">
           <div className="site-container">
             <div className="mx-auto max-w-2xl text-center">
               <span className="text-xs font-black uppercase tracking-[.18em] text-emerald-600">Visola psi</span>
               <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-5xl">{uz ? "O‘quvni oddiy va natijali qiling" : "Сделайте обучение простым и эффективным"}</h2>
             </div>
 
-            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
               {features.map(([title, text], index) => (
                 <motion.div key={title} initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * .06 }} className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-slate-900">
                   <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
@@ -175,7 +175,7 @@ export default function HomePage() {
         {/* =========================================================
             SECTION 4: FANLARNI TANLASH (#subjects - 2 ta Karta)
            ========================================================= */}
-        <section id="subjects" className="bg-slate-50 px-4 py-16 dark:bg-slate-950 sm:py-20 scroll-mt-16">
+        <section id="subjects" className="bg-slate-50 px-4 py-20 dark:bg-slate-950 sm:py-24 lg:py-28 scroll-mt-16">
           <div className="site-container">
             <div className="mx-auto max-w-2xl text-center">
               <span className="inline-flex items-center gap-2 rounded-full border border-sky-500/20 bg-sky-50 px-3 py-1.5 text-xs font-bold text-sky-700 dark:bg-sky-500/10 dark:text-sky-300"><Compass size={14} /> 8-sinf</span>
@@ -183,11 +183,11 @@ export default function HomePage() {
               <p className="mt-3 text-sm text-slate-500 sm:text-base dark:text-slate-400">{uz ? "Tarix yo‘nalishini tanlab, mavzu bo‘yicha testni boshlang." : "Выберите направление истории и начните тест по теме."}</p>
             </div>
 
-            <div className="mx-auto mt-10 grid max-w-4xl gap-5 md:grid-cols-2">
+            <div className="mx-auto mt-14 grid max-w-4xl gap-5 sm:grid-cols-2 lg:gap-8">
               {fanlar.map((fan) => {
                 const isUzb = fan.includes("O'zbekiston");
                 return (
-                  <motion.div key={fan} whileHover={{ y: -4 }} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-slate-900">
+                  <motion.div key={fan} whileHover={{ y: -4 }} className="rounded-3xl border border-slate-200 bg-white p-7 sm:p-8 shadow-sm dark:border-white/10 dark:bg-slate-900">
                     <div className="flex items-start justify-between">
                       <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${isUzb ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10" : "bg-sky-50 text-sky-600 dark:bg-sky-500/10"}`}>
                         {isUzb ? <LandmarkIcon /> : <Globe2 size={24} />}
@@ -210,7 +210,7 @@ export default function HomePage() {
         {/* =========================================================
             SECTION 5: BOTTOM GAME ON CTA (Dark Minimalist Banner)
            ========================================================= */}
-        <section className="w-full bg-linear-to-r from-emerald-600 via-sky-600 to-blue-700 text-white py-16 sm:py-20 px-4 border-t border-white/10 flex flex-col items-center justify-center text-center">
+        <section className="w-full bg-linear-to-r from-emerald-600 via-sky-600 to-blue-700 text-white py-20 sm:py-24 px-4 border-t border-white/10 flex flex-col items-center justify-center text-center">
           <div className="max-w-2xl mx-auto space-y-5 flex flex-col items-center text-center">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-center">
               {lang === "uz" ? "Boshlashga tayyormisiz?" : "Готовы начать?"}
