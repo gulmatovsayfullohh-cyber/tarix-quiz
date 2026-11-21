@@ -2,16 +2,29 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft, BookMarked, ChevronRight, Sparkles, Layers } from "lucide-react";
-import { getMavzular, getSavollarSoni } from "@/lib/questions";
+import { getMavzular, getSavollarSoni, fetchQuestions } from "@/lib/questions";
 import Navbar from "@/components/Navbar";
 import { useSettingsStore } from "@/lib/settings-store";
 import { t } from "@/lib/translations";
+import { useEffect, useState } from "react";
 
 export default function FanContent({ fan }: { fan: string }) {
   const { lang } = useSettingsStore();
   const strings = t[lang];
   const fanDecoded = decodeURIComponent(fan);
-  const mavzular = getMavzular(fanDecoded);
+  const [allQuestions, setAllQuestions] = useState<Awaited<ReturnType<typeof fetchQuestions>>>([]);
+  const mavzular = [...new Set([
+    ...getMavzular(fanDecoded),
+    ...allQuestions.filter((q) => q.fan === fanDecoded).map((q) => q.mavzu),
+  ])];
+
+  useEffect(() => {
+    let active = true;
+    fetchQuestions().then((questions) => {
+      if (active) setAllQuestions(questions);
+    });
+    return () => { active = false; };
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 transition-colors">
@@ -47,7 +60,9 @@ export default function FanContent({ fan }: { fan: string }) {
         {/* Mavzular ro'yxati */}
         <div className="space-y-3">
           {mavzular.map((mavzu, i) => {
-            const count = getSavollarSoni(fanDecoded, mavzu);
+            const count = allQuestions.length > 0
+              ? allQuestions.filter((q) => q.fan === fanDecoded && q.mavzu === mavzu).length
+              : getSavollarSoni(fanDecoded, mavzu);
             return (
               <motion.div
                 key={mavzu}

@@ -3,25 +3,36 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft, Layers, Gamepad2, Sparkles, CheckCircle2 } from "lucide-react";
-import { getSavollarSoni, getSavollar } from "@/lib/questions";
+import { fetchQuestions, getSavollarSoni, getSavollar } from "@/lib/questions";
 import { useQuizStore } from "@/lib/quiz-store";
 import Navbar from "@/components/Navbar";
 import { useSettingsStore } from "@/lib/settings-store";
+import { useEffect, useState } from "react";
 
 const COUNT_OPTIONS = [5, 10, 15, 20, 30];
 
 export default function MavzuContent({ fan, mavzu }: { fan: string; mavzu: string }) {
   const { lang } = useSettingsStore();
-  const total = getSavollarSoni(fan, mavzu);
   const router = useRouter();
   const { setFan, setMavzu, startQuiz } = useQuizStore();
+  const [questions, setQuestions] = useState(() => getSavollar(fan, mavzu));
+  const total = questions.length;
+
+  useEffect(() => {
+    let active = true;
+    fetchQuestions().then((all) => {
+      if (!active) return;
+      const filtered = all.filter((question) => question.fan === fan && question.mavzu === mavzu);
+      if (filtered.length > 0) setQuestions(filtered);
+    });
+    return () => { active = false; };
+  }, [fan, mavzu]);
 
   const options = [...COUNT_OPTIONS.filter((n) => n < total), total];
 
   const handleStart = (count: number) => {
     setFan(fan);
     setMavzu(mavzu);
-    const questions = getSavollar(fan, mavzu);
     startQuiz(questions, count);
     router.push("/quiz");
   };

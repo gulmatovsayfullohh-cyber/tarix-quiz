@@ -29,6 +29,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import { useSettingsStore } from "@/lib/settings-store";
 import { t } from "@/lib/translations";
+import { getFanlar, getMavzular } from "@/lib/questions";
 
 interface Question {
   id?: string;
@@ -71,6 +72,7 @@ export default function AdminPage() {
     q: { ...EMPTY_Q },
   });
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [customTopicMode, setCustomTopicMode] = useState(false);
 
   // Load saved token
   useEffect(() => {
@@ -198,11 +200,20 @@ export default function AdminPage() {
     }
   };
 
-  const openEdit = (q: Question) =>
+  const openEdit = (q: Question) => {
+    setCustomTopicMode(false);
     setModal({ open: true, q: { ...q, variantlar: [...q.variantlar] } });
+  };
 
-  const openAdd = () =>
-    setModal({ open: true, q: { ...EMPTY_Q, variantlar: ["", "", "", ""] } });
+  const openAdd = () => {
+    setCustomTopicMode(false);
+    const firstFan = getFanlar()[0] || EMPTY_Q.fan;
+    const firstTopic = getMavzular(firstFan)[0] || "";
+    setModal({
+      open: true,
+      q: { ...EMPTY_Q, fan: firstFan, mavzu: firstTopic, variantlar: ["", "", "", ""] },
+    });
+  };
 
   // Filterlangan savollar
   const filteredQuestions = useMemo(() => {
@@ -681,11 +692,17 @@ export default function AdminPage() {
                       </label>
                       <select
                         value={modal.q.fan}
-                        onChange={(e) => setModal((m) => ({ ...m, q: { ...m.q, fan: e.target.value } }))}
+                        onChange={(e) => {
+                          const fan = e.target.value;
+                          const firstTopic = getMavzular(fan)[0] || "";
+                          setCustomTopicMode(false);
+                          setModal((m) => ({ ...m, q: { ...m.q, fan, mavzu: firstTopic } }));
+                        }}
                         className="modern-input"
                       >
-                        <option value="O'zbekiston tarixi">O&apos;zbekiston tarixi</option>
-                        <option value="Jahon tarixi">Jahon tarixi</option>
+                        {getFanlar().map((fan) => (
+                          <option key={fan} value={fan}>{fan}</option>
+                        ))}
                       </select>
                     </div>
                     <div>
@@ -706,16 +723,41 @@ export default function AdminPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                      Mavzu nomi
-                    </label>
-                    <input
-                      type="text"
-                      value={modal.q.mavzu}
-                      onChange={(e) => setModal((m) => ({ ...m, q: { ...m.q, mavzu: e.target.value } }))}
-                      placeholder="XIII asr boshlarida Xorazm davlati"
-                      className="modern-input"
-                    />
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        Mavzu
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setCustomTopicMode((value) => !value)}
+                        className="text-[11px] font-bold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
+                      >
+                        {customTopicMode ? "Mavzulardan tanlash" : "+ Yangi mavzu"}
+                      </button>
+                    </div>
+                    {customTopicMode ? (
+                      <input
+                        type="text"
+                        value={modal.q.mavzu}
+                        onChange={(e) => setModal((m) => ({ ...m, q: { ...m.q, mavzu: e.target.value } }))}
+                        placeholder="Yangi mavzu nomini kiriting"
+                        className="modern-input"
+                        autoFocus
+                      />
+                    ) : (
+                      <select
+                        value={modal.q.mavzu}
+                        onChange={(e) => setModal((m) => ({ ...m, q: { ...m.q, mavzu: e.target.value } }))}
+                        className="modern-input"
+                      >
+                        {[...new Set([
+                          ...getMavzular(modal.q.fan),
+                          ...questions.filter((q) => q.fan === modal.q.fan).map((q) => q.mavzu),
+                        ])].map((topic) => (
+                          <option key={topic} value={topic}>{topic}</option>
+                        ))}
+                      </select>
+                    )}
                   </div>
 
                   <div>
@@ -778,7 +820,7 @@ export default function AdminPage() {
                             <button
                               type="button"
                               onClick={() => setModal((m) => ({ ...m, q: { ...m.q, javob: i } }))}
-                              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
+                              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                                 isCorrect
                                   ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/30"
                                   : "bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
