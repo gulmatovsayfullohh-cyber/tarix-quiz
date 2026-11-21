@@ -27,223 +27,186 @@ export default function HomePage() {
   const fanlar = getFanlar();
   const uz = lang === "uz";
 
-  const hero = {
-    badge: uz ? "8-sinf uchun interaktiv tarix platformasi" : "Интерактивная история для 8-го класса",
-    titleA: uz ? "Tarixni " : "Изучайте ",
-    titleB: uz ? "qiziqarli o'rganing" : "историю с интересом",
-    desc: uz
-      ? "Mavzular, testlar, vaqt va natijalarni bir joyda boshqaradigan zamonaviy o‘quv platformasi."
-      : "Современная учебная платформа для тем, тестов, времени и результатов в одном месте.",
-    cta: uz ? "Testni boshlash" : "Начать тест",
+  const subjectText = (fan: string) => {
+    if (fan.includes("O'zbekiston")) {
+      return uz
+        ? "Davlatlar, sulolalar, janglar va tarixiy shaxslar."
+        : "Государства, династии, сражения и исторические личности.";
+    }
+    return uz
+      ? "Jahon voqealari, inqiloblar, urushlar va madaniyat."
+      : "Мировые события, революции, войны и культура.";
   };
 
-  const features = uz
+  const featureItems = uz
     ? [
-        ["ABCD testlari", "Har bir savolda to‘rt aniq variant va tez javob"],
-        ["Jonli vaqt", "Test boshlanishi va tugashigacha avtomatik sekundamer"],
-        ["Ayrim natijalar", "To‘g‘ri javoblar, xatolar va umumiy foizni ko‘ring"],
-        ["O‘zbek va rus", "Butun platformani o‘zingizga qulay tilda ishlating"],
+        [BookOpen, "ABCD testlari", "Har bir savolda to‘rt aniq variant va tez javob."],
+        [Timer, "Jonli vaqt", "Test boshlanishidan tugashigacha avtomatik sekundamer."],
+        [Award, "Aniq natija", "To‘g‘ri javoblar, xatolar va umumiy foizni ko‘ring."],
+        [Globe2, "Ikki til", "Platformani o‘zbek yoki rus tilida ishlating."],
       ]
     : [
-        ["Тесты ABCD", "Четыре варианта в каждом вопросе и быстрый ответ"],
-        ["Живое время", "Автоматический таймер от начала до конца теста"],
-        ["Подробные результаты", "Правильные ответы, ошибки и общий процент"],
-        ["Узбекский и русский", "Используйте всю платформу на удобном языке"],
+        [BookOpen, "Тесты ABCD", "Четыре чётких варианта и быстрый выбор ответа."],
+        [Timer, "Живое время", "Автоматический таймер от начала до конца теста."],
+        [Award, "Точный результат", "Смотрите правильные ответы, ошибки и общий процент."],
+        [Globe2, "Два языка", "Используйте платформу на узбекском или русском."],
       ];
 
   return (
-    <div className="min-h-screen bg-white text-slate-950 dark:bg-slate-950 dark:text-white">
+    <div className="min-h-screen overflow-x-hidden bg-(--comic-cream) text-[#111] dark:text-white">
       <Navbar />
 
       <main>
-        {/* =========================================================
-            SECTION 1: HERO (Chiroyli va zamonaviy kirish ekran)
-           ========================================================= */}
-        <section className="relative overflow-hidden border-b border-slate-200/70 px-4 py-20 sm:py-24 lg:py-28 dark:border-white/10">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(16,185,129,.12),transparent_24%),radial-gradient(circle_at_85%_25%,rgba(37,99,235,.12),transparent_28%)]" />
-          <div className="absolute -left-20 top-32 h-56 w-56 rounded-full bg-emerald-300/10 blur-3xl" />
-
-          <div className="site-container relative grid items-center gap-16 lg:grid-cols-[1.08fr_.92fr] lg:gap-20">
-            <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-50 px-3.5 py-2 text-xs font-extrabold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
+        <section className="comic-hero border-b-[3px] border-[#111] py-12 sm:py-16 lg:py-20 dark:border-white">
+          <div className="site-container grid items-center gap-12 lg:grid-cols-[1.08fr_.92fr] lg:gap-12">
+            <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
+              <span className="comic-badge mb-5 bg-white text-[#111]">
                 <Sparkles size={15} />
-                {hero.badge}
-              </div>
+                {uz ? "8-sinf uchun interaktiv tarix" : "Интерактивная история для 8-го класса"}
+              </span>
 
-              <h1 className="max-w-3xl text-5xl font-black leading-[.95] tracking-[-0.045em] sm:text-6xl lg:text-[76px]">
-                {hero.titleA}
-                <span className="block bg-linear-to-r from-emerald-600 via-sky-600 to-blue-700 bg-clip-text text-transparent">{hero.titleB}</span>
+              <h1 className="max-w-180 text-[clamp(2.5rem,6vw,4.5rem)] leading-[1.1] tracking-[-0.02em] text-[#111] dark:text-white">
+                {uz ? "Tarixni " : "Изучайте "}
+                <span className="text-(--comic-purple)">{uz ? "qiziqarli o‘rganing" : "историю легко"}</span>
               </h1>
 
-              <p className="mt-6 max-w-xl text-base leading-7 text-slate-600 sm:text-lg dark:text-slate-300">{hero.desc}</p>
+              <p className="mt-6 max-w-[60ch] text-base leading-[1.6] text-[#334155] sm:text-lg dark:text-slate-200">
+                {uz
+                  ? "Mavzular, testlar, vaqt va natijalarni bir joyda boshqaradigan zamonaviy o‘quv platformasi."
+                  : "Современная учебная платформа для тем, тестов, времени и результатов в одном месте."}
+              </p>
 
-              <div className="mt-9 flex flex-col gap-4 sm:flex-row">
-                <Link href="#subjects" className="sm:w-auto">
-                  <button className="btn-primary min-h-14 w-full px-7 text-base sm:w-auto">
-                    <Gamepad2 size={20} />
-                    {hero.cta}
-                    <ArrowRight size={18} />
+              <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+                <Link href="#subjects">
+                  <button className="comic-button flex h-13 w-full items-center justify-center gap-2 px-7 sm:w-auto" type="button">
+                    <Gamepad2 size={20} />{uz ? "Testni boshlash" : "Начать тест"}<ArrowRight size={18} />
                   </button>
                 </Link>
-                <Link href="/statistika" className="sm:w-auto">
-                  <button className="btn-ghost min-h-14 w-full px-6 sm:w-auto">
-                    <BarChart2 size={18} />
-                    {uz ? "Natijalar" : "Результаты"}
+                <Link href="/statistika">
+                  <button className="flex h-13 w-full items-center justify-center gap-2 rounded-[14px] border-[3px] border-[#111] bg-white px-7 text-sm font-black text-[#111] shadow-[4px_4px_0_#111] transition-transform sm:w-auto" type="button">
+                    <BarChart2 size={18} />{uz ? "Natijalar" : "Результаты"}
                   </button>
                 </Link>
               </div>
 
-              <div className="mt-7 flex flex-wrap gap-3 text-xs font-bold text-slate-600 dark:text-slate-300">
+              <div className="mt-8 flex flex-wrap gap-3">
                 {[
-                  [CheckCircle2, uz ? "ABCD variantlar" : "Варианты ABCD", "text-emerald-500"],
-                  [Timer, uz ? "Jonli timer" : "Живой таймер", "text-sky-500"],
-                  [Trophy, uz ? "To‘liq natija" : "Полный результат", "text-amber-500"],
-                ].map(([Icon, label, color]) => {
-                  const ItemIcon = Icon as typeof CheckCircle2;
-                  return (
-                    <span key={String(label)} className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 dark:border-white/10 dark:bg-white/5">
-                      <ItemIcon size={15} className={String(color)} /> {String(label)}
-                    </span>
-                  );
+                  [CheckCircle2, uz ? "ABCD variantlari" : "Варианты ABCD"],
+                  [Timer, uz ? "Jonli timer" : "Живой таймер"],
+                  [Trophy, uz ? "To‘liq natija" : "Полный результат"],
+                ].map(([Icon, label]) => {
+                  const BadgeIcon = Icon as typeof CheckCircle2;
+                  return <span key={String(label)} className="comic-badge"><BadgeIcon size={16} />{String(label)}</span>;
                 })}
               </div>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, scale: .96, x: 20 }} animate={{ opacity: 1, scale: 1, x: 0 }} transition={{ duration: .55, delay: .12 }} className="relative mx-auto w-full max-w-130">
-              <div className="absolute -inset-5 rounded-[36px] bg-linear-to-br from-emerald-300/20 via-sky-300/10 to-blue-300/20 blur-2xl" />
-              <div className="relative rounded-[30px] border border-slate-200 bg-slate-950 p-4 shadow-[0_30px_80px_-30px_rgba(15,23,42,.75)] sm:p-5">
-                <div className="mb-4 flex items-center justify-between">
+            <motion.div initial={{ opacity: 0, scale: .96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: .35, delay: .08 }} className="w-full max-w-130 justify-self-center lg:justify-self-end">
+              <div className="comic-panel rotate-[0.4deg] bg-[#111827] p-6 text-white">
+                <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[.2em] text-emerald-400">Visola psi</p>
-                    <p className="mt-1 text-sm font-bold text-white">{uz ? "Amir Temur davri" : "Эпоха Амира Темура"}</p>
+                    <p className="text-xs font-black uppercase tracking-[.16em] text-(--comic-teal)">Visola psi</p>
+                    <p className="mt-1 text-sm font-black">{uz ? "Amir Temur davri" : "Эпоха Амира Темура"}</p>
                   </div>
-                  <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-2 text-xs font-black text-white"><Timer size={14} className="text-sky-400" /> 00:42</div>
+                  <span className="flex shrink-0 items-center gap-2 rounded-full border-2 border-white bg-white/10 px-3 py-2 text-sm font-black"><Timer size={16} />00:42</span>
                 </div>
 
-                <div className="rounded-2xl border border-white/10 bg-white/7 p-5 text-center text-sm font-extrabold leading-relaxed text-white sm:text-base">
+                <div className="mt-5 rounded-xl border-2 border-white/70 bg-white/10 p-4 text-center text-base font-black leading-6">
                   {uz ? "Amir Temur 1370-yilda qaysi shaharni poytaxt qilgan?" : "Какой город Амир Темур сделал столицей в 1370 году?"}
                 </div>
 
-                <div className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {[
-                    ["A", uz ? "Koshon" : "Кашан", "bg-rose-500"],
-                    ["B", uz ? "Andijon" : "Андижан", "bg-blue-600"],
-                    ["C", uz ? "Samarqand" : "Самарканд", "bg-emerald-600 ring-2 ring-emerald-300/70"],
-                    ["D", uz ? "Buxoro" : "Бухара", "bg-amber-500"],
+                    ["A", uz ? "Koshon" : "Кашан", "#ff3b6b"],
+                    ["B", uz ? "Andijon" : "Андижан", "#2563eb"],
+                    ["C", uz ? "Samarqand" : "Самарканд", "#00c2a8"],
+                    ["D", uz ? "Buxoro" : "Бухара", "#ffb800"],
                   ].map(([letter, answer, color]) => (
-                    <div key={letter} className={`flex items-center gap-3 rounded-xl ${color} p-3 text-xs font-bold text-white sm:text-sm`}>
-                      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-black/20 font-black">{letter}</span>
+                    <div key={letter} className="flex min-h-14 items-center gap-3 rounded-xl border-2 border-white px-3 py-2 text-sm font-black" style={{ backgroundColor: String(color), color: letter === "D" ? "#111" : "#fff" }}>
+                      <span className="flex h-8 w-8 items-center justify-center rounded-lg border-2 border-white text-xs">{letter}</span>
                       <span>{answer}</span>
-                      {letter === "C" && <CheckCircle2 size={16} className="ml-auto" />}
                     </div>
                   ))}
                 </div>
 
-                <div className="mt-4 flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2.5">
-                  <span className="text-xs font-bold text-slate-400">5 / 10</span>
-                  <div className="h-2 w-32 overflow-hidden rounded-full bg-white/10"><div className="h-full w-1/2 rounded-full bg-linear-to-r from-emerald-400 to-sky-400" /></div>
+                <div className="mt-4 flex items-center justify-between gap-3">
+                  <span className="text-xs font-black">5 / 10</span>
+                  <div className="h-3 flex-1 overflow-hidden rounded-full border-2 border-white bg-white/20"><div className="h-full w-1/2 bg-(--comic-yellow)" /></div>
                 </div>
               </div>
             </motion.div>
           </div>
         </section>
 
-        {/* =========================================================
-            SECTION 2: ANSWER & PHONE MOCKUP (Interaktiv Showcase)
-           ========================================================= */}
-        <section className="border-b border-slate-200 px-4 py-20 dark:border-white/10 sm:py-24 lg:py-28">
+        <section className="section-space border-b-[3px] border-[#111] bg-white dark:bg-slate-950 dark:border-white">
           <div className="site-container">
-            <div className="mx-auto max-w-2xl text-center">
-              <span className="text-xs font-black uppercase tracking-[.18em] text-emerald-600">Visola psi</span>
-              <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-5xl">{uz ? "O‘quvni oddiy va natijali qiling" : "Сделайте обучение простым и эффективным"}</h2>
+            <div className="mx-auto max-w-[60ch] text-center">
+              <h2 className="comic-title text-[clamp(1.75rem,4vw,2.75rem)] leading-[1.2]">{uz ? "O‘quvni oddiy va natijali qiling" : "Сделайте обучение простым и эффективным"}</h2>
+              <p className="mt-3 text-base leading-[1.6] text-slate-600 dark:text-slate-300">{uz ? "To‘liq quiz tajribasi va tushunarli natijalar bir joyda." : "Полный опыт тестирования и понятные результаты в одном месте."}</p>
             </div>
 
-            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
-              {features.map(([title, text], index) => (
-                <motion.div key={title} initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * .06 }} className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-slate-900">
-                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
-                    {index === 0 ? <BookOpen size={20} /> : index === 1 ? <Timer size={20} /> : index === 2 ? <Award size={20} /> : <Globe2 size={20} />}
-                  </div>
-                  <h3 className="text-base font-extrabold">{title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">{text}</p>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* =========================================================
-            SECTION 4: FANLARNI TANLASH (#subjects - 2 ta Karta)
-           ========================================================= */}
-        <section id="subjects" className="bg-slate-50 px-4 py-20 dark:bg-slate-950 sm:py-24 lg:py-28 scroll-mt-16">
-          <div className="site-container">
-            <div className="mx-auto max-w-2xl text-center">
-              <span className="inline-flex items-center gap-2 rounded-full border border-sky-500/20 bg-sky-50 px-3 py-1.5 text-xs font-bold text-sky-700 dark:bg-sky-500/10 dark:text-sky-300"><Compass size={14} /> 8-sinf</span>
-              <h2 className="mt-4 text-3xl font-black tracking-tight sm:text-5xl">{uz ? "Fanni tanlang" : "Выберите предмет"}</h2>
-              <p className="mt-3 text-sm text-slate-500 sm:text-base dark:text-slate-400">{uz ? "Tarix yo‘nalishini tanlab, mavzu bo‘yicha testni boshlang." : "Выберите направление истории и начните тест по теме."}</p>
-            </div>
-
-            <div className="mx-auto mt-14 grid max-w-4xl gap-5 sm:grid-cols-2 lg:gap-8">
-              {fanlar.map((fan) => {
-                const isUzb = fan.includes("O'zbekiston");
+            <div className="mt-10 grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {featureItems.map(([Icon, title, text], index) => {
+                const FeatureIcon = Icon as typeof BookOpen;
                 return (
-                  <motion.div key={fan} whileHover={{ y: -4 }} className="rounded-3xl border border-slate-200 bg-white p-7 sm:p-8 shadow-sm dark:border-white/10 dark:bg-slate-900">
-                    <div className="flex items-start justify-between">
-                      <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${isUzb ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10" : "bg-sky-50 text-sky-600 dark:bg-sky-500/10"}`}>
-                        {isUzb ? <LandmarkIcon /> : <Globe2 size={24} />}
-                      </div>
-                      <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-600 dark:bg-white/10 dark:text-slate-300">{getMavzular(fan).length} {uz ? "mavzu" : "тем"}</span>
+                  <motion.article key={String(title)} whileInView={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 10 }} viewport={{ once: true }} className="comic-panel flex min-h-55 flex-col p-6">
+                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border-[3px] border-[#111] bg-(--comic-teal) text-[#111] shadow-[3px_3px_0_#111]">
+                      <FeatureIcon size={24} strokeWidth={2.5} />
                     </div>
-                    <h3 className="mt-5 text-2xl font-black">{fan}</h3>
-                    <p className="mt-2 min-h-12 text-sm leading-6 text-slate-500 dark:text-slate-400">{isUzb ? (uz ? "O‘zbekiston davlati, sulolalari va tarixiy voqealar." : "Государство Узбекистана, династии и исторические события.") : (uz ? "Jahon tarixidagi muhim davrlar, inqiloblar va urushlar." : "Важные эпохи мировой истории, революции и войны.")}</p>
-                    <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-white/10">
-                      <span className="text-xs font-bold text-slate-400">{getSavollarSoni(fan)} {uz ? "savol" : "вопросов"}</span>
-                      <Link href={`/${encodeURIComponent(fan)}`}><button className="btn-primary px-4 py-2.5 text-sm"><span>{uz ? "Boshlash" : "Начать"}</span><ArrowRight size={16} /></button></Link>
-                    </div>
-                  </motion.div>
+                    <h3 className="text-lg font-normal">{String(title)}</h3>
+                    <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{String(text)}</p>
+                  </motion.article>
                 );
               })}
             </div>
           </div>
         </section>
 
-        {/* =========================================================
-            SECTION 5: BOTTOM GAME ON CTA (Dark Minimalist Banner)
-           ========================================================= */}
-        <section className="w-full bg-linear-to-r from-emerald-600 via-sky-600 to-blue-700 text-white py-20 sm:py-24 px-4 border-t border-white/10 flex flex-col items-center justify-center text-center">
-          <div className="max-w-2xl mx-auto space-y-5 flex flex-col items-center text-center">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-center">
-              {lang === "uz" ? "Boshlashga tayyormisiz?" : "Готовы начать?"}
-            </h2>
-            <p className="text-sm sm:text-base text-slate-400 leading-relaxed text-center">
-              {lang === "uz"
-                ? "Barcha mavzular bo'yicha bilimlaringizni sinab ko'ring va eng yaxshi natijaga erishing!"
-                : "Проверьте свои знания по всем темам и достигните наилучшего результата!"}
-            </p>
-            <div className="pt-2 flex justify-center">
-              <Link href="#subjects">
-                <button className="btn-gimkit px-9 py-3.5 text-base rounded-2xl shadow-xl shadow-violet-600/40">
-                  <Zap size={18} />
-                  <span>{hero.cta}</span>
-                </button>
-              </Link>
+        <section id="subjects" className="section-space border-b-[3px] border-[#111] bg-(--comic-cream) scroll-mt-20 dark:border-white">
+          <div className="site-container">
+            <div className="mx-auto max-w-[60ch] text-center">
+              <span className="comic-badge mb-4 bg-(--comic-yellow) text-[#111]">8-sinf</span>
+              <h2 className="comic-title text-[clamp(1.75rem,4vw,2.75rem)] leading-[1.2]">{uz ? "Fanni tanlang" : "Выберите предмет"}</h2>
+              <p className="mt-3 text-base leading-[1.6] text-slate-600 dark:text-slate-300">{uz ? "Tarix yo‘nalishini tanlab, mavzu bo‘yicha testni boshlang." : "Выберите направление истории и начните тест по теме."}</p>
             </div>
+
+            <div className="mx-auto mt-10 grid max-w-225 gap-6 md:grid-cols-2">
+              {fanlar.map((fan) => (
+                <article key={fan} className="comic-panel relative flex min-h-70 flex-col p-6">
+                  <span className="absolute right-4 top-4 comic-badge bg-(--comic-yellow) text-[#111]">
+                    {getMavzular(fan).length} {uz ? "ta mavzu" : "тем"}
+                  </span>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full border-[3px] border-[#111] bg-(--comic-purple) text-white shadow-[3px_3px_0_#111]">
+                    {fan.includes("O'zbekiston") ? <BookOpen size={24} /> : <Globe2 size={24} />}
+                  </div>
+                  <h3 className="mt-4 text-2xl">{fan}</h3>
+                  <p className="mt-2 flex-1 text-sm leading-6 text-slate-600 dark:text-slate-300">{subjectText(fan)}</p>
+                  <div className="mt-4 flex items-center justify-between gap-3 border-t-2 border-[#111] pt-4 dark:border-white">
+                    <span className="text-sm font-black">{getSavollarSoni(fan)} {uz ? "ta savol" : "вопросов"}</span>
+                    <Link href={`/${encodeURIComponent(fan)}`}><button className="comic-button flex h-13 items-center gap-2 px-5 text-sm" type="button">{uz ? "Boshlash" : "Начать"}<ArrowRight size={17} /></button></Link>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="comic-cta section-space text-center">
+          <div className="site-container">
+            <h2 className="comic-title text-[clamp(1.75rem,4vw,2.75rem)] leading-[1.2] text-[#111]">{uz ? "Bilimingizni sinab ko‘ring" : "Проверьте свои знания"}</h2>
+            <p className="mx-auto mt-3 max-w-[60ch] text-base leading-[1.6] text-[#111]">{uz ? "Testni boshlang, natijangizni o‘ling va xatolar ustida ishlang." : "Начните тест, получите результат и проанализируйте ошибки."}</p>
+            <Link href="#subjects"><button className="mt-8 h-14 rounded-[14px] border-[3px] border-[#111] bg-white px-9 text-base font-black text-[#111] shadow-[5px_5px_0_#111] transition-transform hover:translate-x-0.5 hover:translate-y-0.5" type="button"><Zap size={18} className="mr-2 inline" />{uz ? "Testni boshlash" : "Начать тест"}</button></Link>
           </div>
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-800 bg-slate-950 px-4 py-8 text-center text-slate-400">
-        <div className="site-container">
-          <div className="mb-4 flex items-center justify-center gap-2 text-lg font-black text-white"><Sparkles size={18} className="text-emerald-400" />Visola psi</div>
-          <div className="flex flex-wrap justify-center gap-5 text-xs font-bold"><Link href="#subjects" className="hover:text-white">{uz ? "Test" : "Тест"}</Link><Link href="/admin" className="hover:text-white">{uz ? "Admin panel" : "Админ Панель"}</Link><Link href="/statistika" className="hover:text-white">{uz ? "Statistika" : "Статистика"}</Link></div>
-          <p className="mt-5 text-[11px]">© 2026 Visola psi. {uz ? "Barcha huquqlar himoyalangan." : "Все права защищены."}</p>
+      <footer className="bg-(--comic-cream) px-4 py-10 text-center dark:bg-slate-950">
+        <div className="site-container flex flex-col items-center gap-4">
+          <div className="comic-title flex items-center gap-2 text-lg text-[#111] dark:text-white"><Sparkles size={18} />Visola psi</div>
+          <nav className="flex flex-wrap justify-center gap-6 text-sm font-black"><Link href="#subjects">{uz ? "Test" : "Тест"}</Link><Link href="/admin">{uz ? "Admin panel" : "Админ Панель"}</Link><Link href="/statistika">{uz ? "Statistika" : "Статистика"}</Link></nav>
+          <p className="text-xs text-slate-600 dark:text-slate-400">© 2026 Visola psi. {uz ? "Barcha huquqlar himoyalangan." : "Все права защищены."}</p>
         </div>
       </footer>
     </div>
   );
-}
-
-function LandmarkIcon() {
-  return <BookOpen size={24} />;
 }

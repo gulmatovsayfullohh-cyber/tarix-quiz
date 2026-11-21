@@ -1,11 +1,23 @@
 import type { Metadata } from "next";
-import { Outfit } from "next/font/google";
+import { Outfit, Nunito, Russo_One } from "next/font/google";
 import "./globals.css";
 
 const outfit = Outfit({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700", "800"],
   variable: "--font-outfit",
+});
+
+const nunito = Nunito({
+  subsets: ["latin", "latin-ext", "cyrillic", "cyrillic-ext"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-nunito",
+});
+
+const russo = Russo_One({
+  subsets: ["latin", "latin-ext", "cyrillic"],
+  weight: "400",
+  variable: "--font-russo",
 });
 
 export const metadata: Metadata = {
@@ -38,7 +50,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${outfit.variable} font-outfit antialiased`}>
+      <body className={`${nunito.variable} ${russo.variable} antialiased`}>
         {children}
       </body>
     </html>

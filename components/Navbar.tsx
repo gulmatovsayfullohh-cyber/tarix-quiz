@@ -27,14 +27,14 @@ export default function Navbar() {
   }, [setTheme, setLang]);
 
   return (
-    <header className="sticky top-0 z-40 w-full backdrop-blur-xl bg-white/70 dark:bg-slate-950/70 border-b border-slate-200/60 dark:border-white/10 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <header className="sticky top-0 z-40 h-18 w-full border-b-[3px] border-[#111] bg-(--comic-cream)/95 backdrop-blur-md dark:border-white">
+      <div className="site-container h-full flex items-center justify-between gap-4">
         {/* Logo / Brand */}
         <Link href="/" className="flex items-center gap-2 group text-decoration-none">
-          <div className="w-9 h-9 rounded-xl bg-linear-to-tr from-emerald-500 via-sky-500 to-violet-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform">
-            <Sparkles size={20} />
+          <div className="w-11 h-11 rounded-full border-[3px] border-[#111] bg-(--comic-teal) flex items-center justify-center text-[#111] shadow-[3px_3px_0_#111] group-hover:translate-x-px group-hover:translate-y-px transition-transform">
+            <Sparkles size={20} strokeWidth={3} />
           </div>
-          <span className="font-extrabold text-xl sm:text-2xl tracking-tight text-slate-900 dark:text-white uppercase font-sans">
+          <span className="comic-title text-lg sm:text-xl text-[#111] dark:text-white">
             Visola <span className="text-violet-600 dark:text-violet-400">psi</span>
           </span>
         </Link>
@@ -75,6 +75,7 @@ export default function Navbar() {
             onClick={() => setLang(lang === "uz" ? "ru" : "uz")}
             className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-white/10 transition-colors"
             title="Tilni o'zgartirish / Сменить язык"
+            aria-label={lang === "uz" ? "Tilni o'zgartirish" : "Сменить язык"}
           >
             <Globe size={13} className="text-violet-600 dark:text-violet-400" />
             <span>{lang.toUpperCase()}</span>

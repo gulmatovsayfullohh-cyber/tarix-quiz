@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+/* ================= VISOLA MANGA SYSTEM ================= */
 :root {
   /* LIGHT MODE */
   --bg-primary: #ffffff;
@@ -25,6 +26,15 @@
 
   --correct: #10b981;
   --wrong: #ef4444;
+
+  --ink: #111111;
+  --comic-purple: #7c3aed;
+  --comic-teal: #00c2a8;
+  --comic-pink: #ff3b6b;
+  --comic-yellow: #ffb800;
+  --comic-cream: #fff9ee;
+  --comic-white: #fffdf8;
+  --comic-shadow: 5px 5px 0 var(--ink);
 }
 
 html.dark {
@@ -42,6 +52,11 @@ html.dark {
   --gimkit-purple: #8b5cf6;
   --gimkit-purple-hover: #7c3aed;
   --gimkit-dark: #060b14;
+
+  --ink: #f8fafc;
+  --comic-cream: #111827;
+  --comic-white: #172033;
+  --comic-shadow: 5px 5px 0 #050505;
 }
 
 * {
@@ -326,5 +341,152 @@ button, a, input, select, textarea {
   .glass,
   .liquid-border {
     border-radius: 18px;
+  }
+}
+
+@media (min-width: 768px) { .site-container { padding-inline: 24px; } }
+@media (min-width: 1280px) { .site-container { padding-inline: 32px; } }
+
+.section-space { padding-block: 48px; }
+@media (min-width: 768px) { .section-space { padding-block: 80px; } }
+
+.comic-panel {
+  border: 3px solid var(--ink);
+  border-radius: 18px;
+  background: var(--comic-white);
+  box-shadow: var(--comic-shadow);
+}
+
+.comic-panel:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.comic-button,
+.btn-primary,
+.btn-gimkit {
+  min-height: 52px;
+  border: 3px solid var(--ink) !important;
+  border-radius: 14px;
+  background: var(--comic-purple) !important;
+  color: #fff !important;
+  box-shadow: 4px 4px 0 var(--ink);
+  transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
+}
+
+.comic-button:hover,
+.btn-primary:hover,
+.btn-gimkit:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--ink);
+  background: #6930d0 !important;
+}
+
+.comic-button:active,
+.btn-primary:active,
+.btn-gimkit:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--ink); }
+
+.btn-ghost,
+.glass,
+.liquid-border {
+  border: 3px solid var(--ink) !important;
+  border-radius: 16px;
+  background: var(--comic-white);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+.btn-ghost {
+  min-height: 52px;
+  color: var(--ink);
+}
+
+.btn-ghost:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--ink); }
+
+.comic-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 6px 14px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--comic-white);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.comic-hero {
+  background-color: var(--comic-cream);
+  background-image:
+    radial-gradient(circle, rgba(17,17,17,.10) 1.2px, transparent 1.4px),
+    linear-gradient(135deg, transparent 48%, rgba(124,58,237,.08) 49%, rgba(124,58,237,.08) 51%, transparent 52%);
+  background-size: 18px 18px, 160px 160px;
+}
+
+.comic-cta {
+  border-top: 3px solid var(--ink);
+  border-bottom: 3px solid var(--ink);
+  background-color: var(--comic-yellow);
+  background-image: radial-gradient(circle, rgba(17,17,17,.13) 1.2px, transparent 1.4px);
+  background-size: 16px 16px;
+}
+
+.modern-input {
+  min-height: 48px;
+  border: 3px solid var(--ink);
+  border-radius: 12px;
+  background: var(--comic-white);
+}
+
+.modern-input:focus-visible,
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--comic-teal);
+  outline-offset: 3px;
+}
+
+.quiz-opt-btn {
+  border: 3px solid var(--ink);
+  border-radius: 14px;
+  background: var(--comic-white);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.quiz-letter { border: 2px solid var(--ink); }
+
+/* Navbar Pills and Icons */
+.nav-pill,
+.nav-icon {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 2px solid #111;
+  border-radius: 999px;
+  background: var(--comic-white);
+  color: #111;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 900;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.nav-icon { width: 44px; padding: 0; }
+.nav-pill:hover,
+.nav-icon:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #111; }
+
+.dark .nav-pill,
+.dark .nav-icon { color: var(--ink); border-color: var(--ink); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
