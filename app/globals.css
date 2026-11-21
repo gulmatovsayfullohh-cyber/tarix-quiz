@@ -1,67 +1,47 @@
 @import "tailwindcss";
 
 :root {
-  /* LIGHT MODE (Default: White, Violet, Green, Blue) */
+  /* LIGHT MODE (Oq fon, binafsha, yashil, ko'k) */
   --bg-primary: #f8fafc;
   --bg-surface: #ffffff;
-  --bg-card: rgba(255, 255, 255, 0.88);
-  --bg-card-hover: rgba(255, 255, 255, 0.98);
-  --border: rgba(148, 163, 184, 0.22);
-  --border-glow: rgba(124, 58, 237, 0.35);
+  --bg-card: #ffffff;
+  --border: #e2e8f0;
+  --border-strong: #0f172a;
   --text-primary: #0f172a;
   --text-secondary: #475569;
-  --text-muted: #94a3b8;
+  --text-muted: #64748b;
 
-  /* Accent Colors */
+  /* Gimkit Violet / Green / Blue */
   --accent-violet: #7c3aed;
-  --accent-violet-light: #ede9fe;
+  --accent-violet-hover: #6d28d9;
   --accent-green: #10b981;
-  --accent-green-light: #d1fae5;
-  --accent-blue: #0ea5e9;
-  --accent-blue-light: #e0f2fe;
-  --accent-gold: #f59e0b;
+  --accent-blue: #0284c7;
 
-  /* ABCD Colors (Kahoot / Gimkit style) */
-  --option-a: #ef4444;
-  --option-b: #2563eb;
-  --option-c: #d97706;
-  --option-d: #059669;
+  /* Kahoot ABCD */
+  --opt-a: #ef4444;
+  --opt-b: #2563eb;
+  --opt-c: #f59e0b;
+  --opt-d: #10b981;
 
   --correct: #10b981;
-  --correct-bg: rgba(16, 185, 129, 0.12);
   --wrong: #ef4444;
-  --wrong-bg: rgba(239, 68, 68, 0.12);
 }
 
 html.dark {
   /* DARK MODE */
-  --bg-primary: #090d16;
-  --bg-surface: #0f172a;
-  --bg-card: rgba(15, 23, 42, 0.75);
-  --bg-card-hover: rgba(30, 41, 59, 0.88);
-  --border: rgba(255, 255, 255, 0.08);
-  --border-glow: rgba(124, 58, 237, 0.45);
+  --bg-primary: #0a0f1d;
+  --bg-surface: #111827;
+  --bg-card: #131c2e;
+  --border: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.25);
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
 
   --accent-violet: #8b5cf6;
-  --accent-violet-light: rgba(139, 92, 246, 0.15);
+  --accent-violet-hover: #7c3aed;
   --accent-green: #34d399;
-  --accent-green-light: rgba(52, 211, 153, 0.15);
   --accent-blue: #38bdf8;
-  --accent-blue-light: rgba(56, 189, 248, 0.15);
-  --accent-gold: #fbbf24;
-
-  --option-a: #f87171;
-  --option-b: #60a5fa;
-  --option-c: #fbbf24;
-  --option-d: #34d399;
-
-  --correct: #10b981;
-  --correct-bg: rgba(16, 185, 129, 0.18);
-  --wrong: #f43f5e;
-  --wrong-bg: rgba(244, 63, 94, 0.18);
 }
 
 * {
@@ -70,159 +50,109 @@ html.dark {
   padding: 0;
 }
 
-html {
-  scroll-behavior: smooth;
-  transition: background-color 0.25s ease, color 0.25s ease;
-}
-
-body {
+html, body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-outfit), system-ui, -apple-system, sans-serif;
   min-height: 100vh;
-  position: relative;
-  overflow-x: hidden;
-  background-image:
-    radial-gradient(circle at 15% 15%, rgba(124, 58, 237, 0.06) 0%, transparent 45%),
-    radial-gradient(circle at 85% 20%, rgba(16, 185, 129, 0.06) 0%, transparent 45%),
-    radial-gradient(circle at 50% 90%, rgba(14, 165, 233, 0.06) 0%, transparent 50%);
-  background-attachment: fixed;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-html.dark body {
-  background-image:
-    radial-gradient(circle at 15% 15%, rgba(139, 92, 246, 0.08) 0%, transparent 45%),
-    radial-gradient(circle at 85% 20%, rgba(16, 185, 129, 0.07) 0%, transparent 45%),
-    radial-gradient(circle at 50% 90%, rgba(56, 189, 248, 0.07) 0%, transparent 50%);
-}
-
-/* Subtle dot mesh */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background-image: radial-gradient(rgba(100, 116, 139, 0.08) 1px, transparent 1px);
-  background-size: 28px 28px;
-  pointer-events: none;
-  z-index: -1;
-}
-
-html.dark body::before {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-}
-
-/* Scrollbar */
-::-webkit-scrollbar { width: 6px; }
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg-primary); }
-::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 999px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.5); }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+html.dark ::-webkit-scrollbar-thumb { background: #334155; }
 
-/* Liquid Glass Cards */
-.glass {
+/* Gimkit Markaziy Karta (Hero Card) */
+.gimkit-hero-card {
   background: var(--bg-card);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--border);
-  box-shadow: 
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.4),
-    0 10px 25px -5px rgba(0, 0, 0, 0.05);
-  border-radius: 20px;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-html.dark .glass {
-  box-shadow: 
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.12),
-    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.4),
-    0 16px 36px -10px rgba(0, 0, 0, 0.6);
-}
-
-.glass:hover {
-  border-color: var(--border-glow);
-  box-shadow: 
-    inset 0 1px 2px 0 rgba(255, 255, 255, 0.6),
-    0 16px 32px -8px rgba(124, 58, 237, 0.12);
-}
-
-html.dark .glass:hover {
-  box-shadow: 
-    inset 0 1px 2px 0 rgba(255, 255, 255, 0.18),
-    0 20px 40px -10px rgba(0, 0, 0, 0.7);
-}
-
-/* Liquid Border / Gimkit style prominent card */
-.liquid-border {
+  border: 3px solid var(--border-strong);
+  border-radius: 36px;
+  box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.08);
   position: relative;
-  background: var(--bg-card);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-radius: 24px;
-  border: 2px solid rgba(15, 23, 42, 0.85);
-  box-shadow: 
-    0 20px 40px -10px rgba(15, 23, 42, 0.08),
-    0 1px 3px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
 }
 
-html.dark .liquid-border {
-  border: 2px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 
-    inset 0 1px 1px rgba(255, 255, 255, 0.15),
-    0 24px 48px -12px rgba(0, 0, 0, 0.7);
+html.dark .gimkit-hero-card {
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.6);
 }
 
-/* Violet Primary Button (Gimkit style) */
-.btn-primary {
-  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
-  color: #ffffff;
+/* Gimkit Binafsha Tugma */
+.btn-gimkit {
+  background-color: #7c3aed;
+  color: #ffffff !important;
   font-weight: 700;
-  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 14px;
-  padding: 13px 26px;
-  font-size: 0.95rem;
+  padding: 14px 28px;
+  font-size: 1rem;
+  border: none;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  font-family: inherit;
-  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.35);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.btn-primary:hover {
+.btn-gimkit:hover {
+  background-color: #6d28d9;
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.45);
-  filter: brightness(1.06);
+  box-shadow: 0 10px 25px rgba(124, 58, 237, 0.45);
 }
 
-.btn-primary:active {
+.btn-gimkit:active {
   transform: translateY(0);
 }
 
-/* Ghost Button */
+/* Standart Ghost tugma */
 .btn-ghost {
-  background: rgba(148, 163, 184, 0.08);
+  background: transparent;
   color: var(--text-primary);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 9px 18px;
+  padding: 8px 16px;
   font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: inherit;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  transition: all 0.2s ease;
 }
 
 .btn-ghost:hover {
-  background: rgba(148, 163, 184, 0.16);
-  border-color: var(--border-glow);
+  background: rgba(148, 163, 184, 0.12);
+  border-color: var(--text-muted);
 }
 
-/* Modern inputs */
+/* Glass Karta */
+.glass {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.glass:hover {
+  box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+html.dark .glass {
+  box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.5);
+}
+
+html.dark .glass:hover {
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.7);
+}
+
+/* Modern Input */
 .modern-input {
   width: 100%;
   padding: 12px 16px;
@@ -241,9 +171,64 @@ html.dark .liquid-border {
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
 }
 
+/* ABCD Quiz Option Buttons */
+.quiz-opt-btn {
+  width: 100%;
+  text-align: left;
+  border-radius: 18px;
+  padding: 16px 20px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.quiz-opt-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.quiz-letter {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.15rem;
+  flex-shrink: 0;
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.opt-a .quiz-letter { background: #ef4444; }
+.opt-b .quiz-letter { background: #2563eb; }
+.opt-c .quiz-letter { background: #f59e0b; }
+.opt-d .quiz-letter { background: #10b981; }
+
+.quiz-opt-btn.correct {
+  background: rgba(16, 185, 129, 0.12) !important;
+  border-color: #10b981 !important;
+  color: #10b981 !important;
+}
+
+.quiz-opt-btn.wrong {
+  background: rgba(239, 68, 68, 0.12) !important;
+  border-color: #ef4444 !important;
+  color: #ef4444 !important;
+}
+
 /* Progress bar */
 .progress-track {
-  background: rgba(148, 163, 184, 0.18);
+  background: rgba(148, 163, 184, 0.2);
   border-radius: 999px;
   height: 8px;
   overflow: hidden;
@@ -254,68 +239,4 @@ html.dark .liquid-border {
   background: linear-gradient(90deg, #7c3aed, #10b981);
   border-radius: 999px;
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* ABCD Quiz Option Buttons */
-.quiz-opt-btn {
-  width: 100%;
-  text-align: left;
-  border-radius: 16px;
-  padding: 16px 20px;
-  color: var(--text-primary);
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  font-family: inherit;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  position: relative;
-  background: var(--bg-card);
-  border: 2px solid var(--border);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-}
-
-.quiz-opt-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  border-color: currentColor;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-}
-
-.quiz-opt-btn:disabled {
-  cursor: default;
-}
-
-.quiz-letter {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 1.1rem;
-  flex-shrink: 0;
-  color: #ffffff;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-}
-
-/* Specific ABCD colors */
-.opt-a .quiz-letter { background: linear-gradient(135deg, #ef4444, #dc2626); }
-.opt-b .quiz-letter { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
-.opt-c .quiz-letter { background: linear-gradient(135deg, #f59e0b, #d97706); }
-.opt-d .quiz-letter { background: linear-gradient(135deg, #10b981, #059669); }
-
-.quiz-opt-btn.correct {
-  background: var(--correct-bg) !important;
-  border-color: var(--correct) !important;
-  color: var(--correct) !important;
-}
-
-.quiz-opt-btn.wrong {
-  background: var(--wrong-bg) !important;
-  border-color: var(--wrong) !important;
-  color: var(--wrong) !important;
 }
