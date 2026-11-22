@@ -2,18 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import {
-  BarChart2,
-  Gamepad2,
-  Globe,
-  Languages,
-  Menu,
-  Moon,
-  Settings,
-  Sparkles,
-  Sun,
-  X,
-} from "lucide-react";
+import { Gamepad2, Globe, Languages, Menu, Moon, Settings, Sparkles, Sun, X } from "lucide-react";
 import { useSettingsStore } from "@/lib/settings-store";
 import { t } from "@/lib/translations";
 
@@ -51,6 +40,11 @@ export default function Navbar() {
       document.removeEventListener("keydown", closeOnEscape);
     };
   }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [menuOpen]);
 
   const chooseLanguage = (next: "uz" | "ru") => {
     setLang(next);
@@ -95,14 +89,6 @@ export default function Navbar() {
           >
             <Settings size={17} />
             <span>{strings.nav.admin}</span>
-          </Link>
-          <Link
-            href="/statistika"
-            className="nav-pill"
-            aria-label={strings.nav.stats}
-          >
-            <BarChart2 size={17} />
-            <span>{strings.nav.stats}</span>
           </Link>
         </nav>
 
@@ -202,14 +188,6 @@ export default function Navbar() {
             >
               <Settings size={18} />
               {strings.nav.admin}
-            </Link>
-            <Link
-              href="/statistika"
-              onClick={() => setMenuOpen(false)}
-              className="flex min-h-12 items-center gap-3 rounded-xl border-2 border-(--border) px-4 font-black"
-            >
-              <BarChart2 size={18} />
-              {strings.nav.stats}
             </Link>
           </div>
         </nav>

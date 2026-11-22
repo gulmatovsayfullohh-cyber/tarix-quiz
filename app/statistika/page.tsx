@@ -146,12 +146,12 @@ export default function StatsPage() {
     return (
       <div className="min-h-screen flex flex-col bg-(--bg) text-(--text)">
         <Navbar />
-        <main className="section-space flex-1">
-          <div className="site-container">
+        <main className="section-space flex min-h-[calc(100vh-72px)] items-center justify-center">
+          <div className="site-container flex justify-center">
             <motion.div
               initial={{ opacity: 0, scale: 0.96, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              className="liquid-border w-full max-w-md p-8 sm:p-10 bg-white dark:bg-slate-900 shadow-2xl relative z-10"
+              className="liquid-border relative z-10 w-full max-w-110 p-6 sm:p-8 bg-(--bg-elevated)"
             >
               <div className="flex items-center justify-between mb-8">
                 <Link

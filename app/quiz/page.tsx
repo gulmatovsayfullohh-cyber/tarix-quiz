@@ -19,13 +19,7 @@ import Navbar from "@/components/Navbar";
 
 const ABCD = ["A", "B", "C", "D", "E", "F"];
 
-// Kahoot/Gimkit ranglari
-const OPT_COLORS = [
-  "opt-a hover:border-rose-500",
-  "opt-b hover:border-blue-500",
-  "opt-c hover:border-amber-500",
-  "opt-d hover:border-emerald-500",
-];
+// Javob variantlari rangsiz neutral holatdan boshlanadi.
 
 function formatTime(seconds: number): string {
   const mins = Math.floor(seconds / 60);
@@ -102,11 +96,10 @@ export default function QuizPage() {
   };
 
   const getOptionClass = (i: number): string => {
-    const baseColor = OPT_COLORS[i % OPT_COLORS.length];
-    if (!answered) return `quiz-opt-btn ${baseColor}`;
-    if (i === correctIdx) return `quiz-opt-btn ${baseColor} correct`;
-    if (i === chosenIdx && chosenIdx !== correctIdx) return `quiz-opt-btn ${baseColor} wrong`;
-    return `quiz-opt-btn ${baseColor} opacity-50`;
+    if (!answered) return "quiz-opt-btn answer-neutral";
+    if (i === correctIdx) return "quiz-opt-btn answer-correct";
+    if (i === chosenIdx && chosenIdx !== correctIdx) return "quiz-opt-btn answer-wrong";
+    return "quiz-opt-btn answer-muted";
   };
 
   return (
@@ -116,7 +109,7 @@ export default function QuizPage() {
       <main className="section-space flex-1">
         <div className="site-container max-w-3xl">
           {/* Top Info Bar (Sekundamer + Ball + Hisob) */}
-          <div className="glass p-3.5 sm:p-4 rounded-2xl mb-5 flex items-center justify-between gap-3 shadow-md">
+          <div className="sticky top-22 z-40 mb-5 flex items-center justify-between gap-3 rounded-2xl border-[3px] border-(--border) bg-(--bg-elevated) p-3 px-4 shadow-[4px_4px_0_var(--shadow-color)] sm:p-4">
             <button
               onClick={() => router.push("/")}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
@@ -184,7 +177,7 @@ export default function QuizPage() {
               </div>
 
               {/* ABCD Variantlar (Figuralar o'rniga aniq ABCD) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
+              <div className="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-2">
                 {q.order.map((opt, i) => (
                   <motion.button
                     key={i}
@@ -200,10 +193,10 @@ export default function QuizPage() {
                       {opt.v}
                     </span>
                     {answered && i === correctIdx && (
-                      <CheckCircle2 size={24} className="text-emerald-500 shrink-0 animate-bounce" />
+                      <CheckCircle2 size={24} className="answer-icon ml-auto shrink-0" aria-label="To'g'ri javob" />
                     )}
                     {answered && i === chosenIdx && i !== correctIdx && (
-                      <XCircle size={24} className="text-rose-500 shrink-0" />
+                      <XCircle size={24} className="answer-icon ml-auto shrink-0" aria-label="Xato javob" />
                     )}
                   </motion.button>
                 ))}

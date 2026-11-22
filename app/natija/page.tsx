@@ -172,12 +172,6 @@ export default function NatijaPage() {
                   <span>{strings.result.chooseTopic}</span>
                 </button>
               </Link>
-              <Link href="/statistika">
-                <button className="btn-ghost text-sm text-emerald-600 dark:text-emerald-400">
-                  <BarChart2 size={16} />
-                  <span>{strings.nav.stats}</span>
-                </button>
-              </Link>
             </div>
           </motion.div>
 

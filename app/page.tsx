@@ -82,11 +82,6 @@ export default function HomePage() {
                     <Gamepad2 size={20} />{uz ? "Testni boshlash" : "Начать тест"}<ArrowRight size={18} />
                   </button>
                 </Link>
-                <Link href="/statistika">
-                  <button className="flex h-13 w-full items-center justify-center gap-2 rounded-[14px] border-[3px] border-[#111] bg-white px-7 text-sm font-black text-[#111] shadow-[4px_4px_0_#111] transition-transform sm:w-auto" type="button">
-                    <BarChart2 size={18} />{uz ? "Natijalar" : "Результаты"}
-                  </button>
-                </Link>
               </div>
 
               <div className="mt-8 flex flex-wrap gap-3">
@@ -203,7 +198,7 @@ export default function HomePage() {
       <footer className="bg-(--comic-cream) px-4 py-10 text-center dark:bg-slate-950">
         <div className="site-container flex flex-col items-center gap-4">
           <div className="comic-title flex items-center gap-2 text-lg text-[#111] dark:text-white"><Sparkles size={18} />Visola psi</div>
-          <nav className="flex flex-wrap justify-center gap-6 text-sm font-black"><Link href="#subjects">{uz ? "Test" : "Тест"}</Link><Link href="/admin">{uz ? "Admin panel" : "Админ Панель"}</Link><Link href="/statistika">{uz ? "Statistika" : "Статистика"}</Link></nav>
+          <nav className="flex flex-wrap justify-center gap-6 text-sm font-black"><Link href="#subjects">{uz ? "Test" : "Тест"}</Link><Link href="/admin">{uz ? "Admin panel" : "Админ Панель"}</Link></nav>
           <p className="text-xs text-slate-600 dark:text-slate-400">© 2026 Visola psi. {uz ? "Barcha huquqlar himoyalangan." : "Все права защищены."}</p>
         </div>
       </footer>
