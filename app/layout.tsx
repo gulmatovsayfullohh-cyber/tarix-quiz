@@ -1,23 +1,17 @@
-import type { Metadata } from "next";
-import { Outfit, Nunito, Russo_One } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Nunito, Russo_One } from "next/font/google";
 import "./globals.css";
-
-const outfit = Outfit({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
-  variable: "--font-outfit",
-});
 
 const nunito = Nunito({
   subsets: ["latin", "latin-ext", "cyrillic", "cyrillic-ext"],
   weight: ["400", "500", "600", "700", "800", "900"],
-  variable: "--font-nunito",
+  variable: "--font-body",
 });
 
 const russo = Russo_One({
   subsets: ["latin", "latin-ext", "cyrillic"],
   weight: "400",
-  variable: "--font-russo",
+  variable: "--font-display",
 });
 
 export const metadata: Metadata = {
@@ -25,6 +19,16 @@ export const metadata: Metadata = {
   description:
     "Visola psi: 8-sinf o'quvchilari uchun O'zbekiston tarixi va Jahon tarixi bo'yicha interaktiv test platformasi.",
   keywords: ["Visola psi", "tarix", "quiz", "test", "8-sinf", "O'zbekiston tarixi"],
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#FFF9EE" },
+    { media: "(prefers-color-scheme: dark)", color: "#0F1020" },
+  ],
 };
 
 export default function RootLayout({
@@ -39,12 +43,13 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               try {
-                const t = localStorage.getItem('app_theme');
-                if (t === 'dark') {
-                  document.documentElement.classList.add('dark');
-                } else {
-                  document.documentElement.classList.remove('dark');
-                }
+                const saved = localStorage.getItem('app_theme');
+                const theme = saved === 'dark' || saved === 'light'
+                  ? saved
+                  : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.dataset.theme = theme;
+                document.documentElement.style.colorScheme = theme;
+                document.documentElement.classList.toggle('dark', theme === 'dark');
               } catch (_) {}
             `,
           }}

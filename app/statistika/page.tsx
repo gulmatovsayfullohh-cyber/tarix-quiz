@@ -21,7 +21,7 @@ import {
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import { useSettingsStore } from "@/lib/settings-store";
-import { t } from "@/lib/translations";
+import { ruPlural, uzPlural, t } from "@/lib/translations";
 
 interface Result {
   id: string;
@@ -61,31 +61,22 @@ export default function StatsPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem("admin_token") || "";
-    if (saved) {
-      setToken(saved);
-      fetchStats(saved);
-    } else {
-      setLoading(false);
-    }
-  }, []);
+    fetchStats();
+  }, [lang]);
 
-  const fetchStats = async (tok: string) => {
+  const fetchStats = async (_tok?: string) => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/results", {
-        headers: { "x-admin-token": tok },
-      });
+      const res = await fetch("/api/results");
       if (res.status === 401) {
-        setError(lang === "uz" ? "Noto'g'ri token kiritildi!" : "Неверный токен!");
         setToken("");
-        localStorage.removeItem("admin_token");
         setLoading(false);
         return;
       }
       const data = await res.json();
       setResults(Array.isArray(data) ? data : []);
+      setToken("session");
     } catch {
       setError(lang === "uz" ? "Statistikani yuklashda xatolik yuz berdi." : "Ошибка загрузки статистики.");
     } finally {
@@ -93,19 +84,31 @@ export default function StatsPage() {
     }
   };
 
-  const handleLogin = (e?: React.FormEvent) => {
+  const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!tokenInput.trim()) return;
-    localStorage.setItem("admin_token", tokenInput.trim());
-    setToken(tokenInput.trim());
-    fetchStats(tokenInput.trim());
+    setLoading(true);
+    setError("");
+    const res = await fetch("/api/admin/session", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ token: tokenInput }),
+    });
+    if (!res.ok) {
+      setError(lang === "uz" ? "Noto'g'ri token kiritildi!" : "Неверный токен!");
+      setLoading(false);
+      return;
+    }
+    setToken("session");
+    setTokenInput("");
+    await fetchStats();
   };
 
   // Hisoblar
   const totalSessions = results.length;
   const avgScore =
     totalSessions > 0
-      ? Math.round(results.reduce((s, r) => s + (r.score / r.total) + 100, 0) / totalSessions)
+      ? Math.round(results.reduce((s, r) => s + (r.score / r.total) * 100, 0) / totalSessions)
       : 0;
   const perfect = results.filter((r) => r.score === r.total).length;
 
@@ -120,9 +123,9 @@ export default function StatsPage() {
     .map(([key, items]) => {
       const [fan, mavzu] = key.split("|||");
       const avgPct = Math.round(
-        items.reduce((s, r) => s + (r.score / r.total) + 100, 0) / items.length
+        items.reduce((s, r) => s + (r.score / r.total) * 100, 0) / items.length
       );
-      const best = Math.max(...items.map((r) => Math.round((r.score / r.total) + 100)));
+      const best = Math.max(...items.map((r) => Math.round((r.score / r.total) * 100)));
       return { fan, mavzu, count: items.length, avgPct, best };
     })
     .sort((a, b) => b.count - a.count);
@@ -141,7 +144,7 @@ export default function StatsPage() {
   // LOGIN SCREEN
   if (!token) {
     return (
-      <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 transition-colors">
+      <div className="min-h-screen flex flex-col bg-(--bg) text-(--text)">
         <Navbar />
         <main className="section-space flex-1">
           <div className="site-container">
@@ -191,7 +194,7 @@ export default function StatsPage() {
                     type={showPassword ? "text" : "password"}
                     value={tokenInput}
                     onChange={(e) => setTokenInput(e.target.value)}
-                    placeholder="tarix-admin-2024"
+                    placeholder={lang === "uz" ? "Admin tokenini kiriting" : "Введите токен администратора"}
                     className="modern-input pr-10"
                     autoFocus
                   />
@@ -215,7 +218,7 @@ export default function StatsPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 transition-colors">
+    <div className="min-h-screen flex flex-col bg-(--bg) text-(--text)">
       <Navbar />
 
       <main className="section-space flex-1">
@@ -243,9 +246,10 @@ export default function StatsPage() {
                 <button className="btn-ghost">{strings.nav.admin}</button>
               </Link>
               <button
-                onClick={() => {
-                  localStorage.removeItem("admin_token");
+                onClick={async () => {
+                  await fetch("/api/admin/session", { method: "DELETE" });
                   setToken("");
+                  setResults([]);
                 }}
                 className="btn-ghost text-rose-500 hover:text-rose-600"
               >
@@ -315,7 +319,7 @@ export default function StatsPage() {
                       <BarChart2 size={16} className="text-violet-600" />
                       {strings.stats.byTopic}
                     </h2>
-                    <span className="text-xs text-slate-500">{statCards.length} {lang === "uz" ? "ta mavzu" : "тем"}</span>
+                    <span className="text-xs text-slate-500">{lang === "uz" ? uzPlural(statCards.length, "mavzu") : ruPlural(statCards.length, "тема", "темы", "тем")}</span>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -324,7 +328,7 @@ export default function StatsPage() {
                         <div className="flex items-start justify-between gap-2">
                           <div>
                             <h4 className="text-sm font-bold text-slate-900 dark:text-white leading-snug">{s.mavzu}</h4>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{s.fan} · {s.count} {lang === "uz" ? "ta topshirilgan" : "прохождений"}</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{s.fan} · {lang === "uz" ? uzPlural(s.count, "topshirilgan") : ruPlural(s.count, "прохождение", "прохождения", "прохождений")}</p>
                           </div>
                           <span className="text-xs font-black px-2.5 py-0.5 rounded-lg bg-slate-100 dark:bg-white/10" style={{ color: pctColor(s.avgPct) }}>
                             {s.avgPct}%

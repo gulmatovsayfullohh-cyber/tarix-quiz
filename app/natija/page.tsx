@@ -82,7 +82,7 @@ export default function NatijaPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 transition-colors">
+    <div className="min-h-screen flex flex-col bg-(--bg) text-(--text)">
       <Navbar />
 
       <main className="section-space flex-1">

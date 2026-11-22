@@ -5,7 +5,7 @@ import { ArrowLeft, BookMarked, ChevronRight, Sparkles, Layers } from "lucide-re
 import { getMavzular, getSavollarSoni, fetchQuestions } from "@/lib/questions";
 import Navbar from "@/components/Navbar";
 import { useSettingsStore } from "@/lib/settings-store";
-import { t } from "@/lib/translations";
+import { ruPlural, uzPlural, t } from "@/lib/translations";
 import { useEffect, useState } from "react";
 
 export default function FanContent({ fan }: { fan: string }) {
@@ -27,7 +27,7 @@ export default function FanContent({ fan }: { fan: string }) {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 transition-colors">
+    <div className="min-h-screen flex flex-col bg-(--bg) text-(--text)">
       <Navbar />
 
       <main className="section-space flex-1">
@@ -85,7 +85,7 @@ export default function FanContent({ fan }: { fan: string }) {
                             {mavzu}
                           </h3>
                           <p className="text-xs text-slate-500 dark:text-slate-400">
-                            {count} {lang === "uz" ? "ta savol" : "вопросов"}
+                            {count} {lang === "uz" ? uzPlural(count, "savol") : ruPlural(count, "вопрос", "вопроса", "вопросов")}
                           </p>
                         </div>
                       </div>

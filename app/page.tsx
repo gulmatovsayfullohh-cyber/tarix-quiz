@@ -53,11 +53,11 @@ export default function HomePage() {
       ];
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-(--comic-cream) text-[#111] dark:text-white">
+    <div className="min-h-screen overflow-x-hidden bg-(--bg) text-(--text)">
       <Navbar />
 
       <main>
-        <section className="comic-hero border-b-[3px] border-[#111] py-12 sm:py-16 lg:py-20 dark:border-white">
+        <section className="comic-hero border-b-[3px] border-(--border) py-12 sm:py-16 lg:py-20">
           <div className="site-container grid items-center gap-12 lg:grid-cols-[1.08fr_.92fr] lg:gap-12">
             <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
               <span className="comic-badge mb-5 bg-white text-[#111]">
@@ -65,7 +65,7 @@ export default function HomePage() {
                 {uz ? "8-sinf uchun interaktiv tarix" : "Интерактивная история для 8-го класса"}
               </span>
 
-              <h1 className="max-w-180 text-[clamp(2.5rem,6vw,4.5rem)] leading-[1.1] tracking-[-0.02em] text-[#111] dark:text-white">
+              <h1 className="max-w-180 text-[clamp(2.25rem,6vw,4.25rem)] leading-[1.1] tracking-[-0.02em] text-(--text)">
                 {uz ? "Tarixni " : "Изучайте "}
                 <span className="text-(--comic-purple)">{uz ? "qiziqarli o‘rganing" : "историю легко"}</span>
               </h1>
@@ -138,7 +138,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="section-space border-b-[3px] border-[#111] bg-white dark:bg-slate-950 dark:border-white">
+        <section className="section-space border-b-[3px] border-(--border) bg-(--bg-elevated)">
           <div className="site-container">
             <div className="mx-auto max-w-[60ch] text-center">
               <h2 className="comic-title text-[clamp(1.75rem,4vw,2.75rem)] leading-[1.2]">{uz ? "O‘quvni oddiy va natijali qiling" : "Сделайте обучение простым и эффективным"}</h2>
@@ -162,7 +162,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="subjects" className="section-space border-b-[3px] border-[#111] bg-(--comic-cream) scroll-mt-20 dark:border-white">
+        <section id="subjects" className="section-space border-b-[3px] border-(--border) bg-(--bg) scroll-mt-20">
           <div className="site-container">
             <div className="mx-auto max-w-[60ch] text-center">
               <span className="comic-badge mb-4 bg-(--comic-yellow) text-[#111]">8-sinf</span>

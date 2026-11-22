@@ -2,8 +2,10 @@ import { supabaseAdmin } from "@/utils/supabase/admin";
 import { NextRequest, NextResponse } from "next/server";
 
 function isAuthorized(req: NextRequest) {
+  const session = req.cookies.get("admin_session")?.value;
+  if (session && process.env.NEXT_ADMIN_TOKEN) return session === process.env.NEXT_ADMIN_TOKEN;
   const token = req.headers.get("x-admin-token");
-  return token === process.env.NEXT_ADMIN_TOKEN;
+  return Boolean(process.env.NEXT_ADMIN_TOKEN && token === process.env.NEXT_ADMIN_TOKEN);
 }
 
 // GET — statistikalar

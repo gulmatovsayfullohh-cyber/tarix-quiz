@@ -11,38 +11,32 @@ interface SettingsState {
   toggleTheme: () => void;
 }
 
-export const useSettingsStore = create<SettingsState>((set) => ({
+function applyTheme(theme: Theme) {
+  if (typeof document === "undefined") return;
+  document.documentElement.dataset.theme = theme;
+  document.documentElement.classList.toggle("dark", theme === "dark");
+  document.documentElement.style.colorScheme = theme;
+}
+
+export const useSettingsStore = create<SettingsState>((set, get) => ({
   lang: "uz",
-  theme: "light", // Boshlang'ich tema foydalanuvchi so'raganidek yorqin/oq/binafsha, lekin dark mode ham bor
+  theme: "light",
+
   setLang: (lang) => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("app_lang", lang);
-    }
+    if (typeof window !== "undefined") localStorage.setItem("app_lang", lang);
     set({ lang });
   },
+
   setTheme: (theme) => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("app_theme", theme);
-      if (theme === "dark") {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
-    }
+    if (typeof window !== "undefined") localStorage.setItem("app_theme", theme);
+    applyTheme(theme);
     set({ theme });
   },
+
   toggleTheme: () => {
-    set((state) => {
-      const nextTheme = state.theme === "dark" ? "light" : "dark";
-      if (typeof window !== "undefined") {
-        localStorage.setItem("app_theme", nextTheme);
-        if (nextTheme === "dark") {
-          document.documentElement.classList.add("dark");
-        } else {
-          document.documentElement.classList.remove("dark");
-        }
-      }
-      return { theme: nextTheme };
-    });
+    const nextTheme: Theme = get().theme === "dark" ? "light" : "dark";
+    if (typeof window !== "undefined") localStorage.setItem("app_theme", nextTheme);
+    applyTheme(nextTheme);
+    set({ theme: nextTheme });
   },
 }));

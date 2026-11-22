@@ -110,7 +110,7 @@ export default function QuizPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 transition-colors">
+    <div className="min-h-screen flex flex-col bg-(--bg) text-(--text)">
       <Navbar />
 
       <main className="section-space flex-1">
@@ -174,8 +174,8 @@ export default function QuizPage() {
               </div>
 
               {/* Savol kartasi (Gimkit/Kahoot katta shinam quti) */}
-              <div className="liquid-border p-6 sm:p-8 bg-white dark:bg-slate-900 rounded-3xl shadow-xl text-center">
-                <h2 className="text-lg sm:text-2xl font-extrabold text-slate-900 dark:text-white leading-relaxed">
+              <div className="liquid-border p-6 sm:p-8 rounded-3xl text-center">
+                <h2 className="text-lg sm:text-2xl font-extrabold text-(--text) leading-relaxed">
                   {q.savol}
                 </h2>
                 <p className="text-xs text-slate-400 mt-2 font-medium">
@@ -196,7 +196,7 @@ export default function QuizPage() {
                   >
                     {/* Qat'iy harf (A, B, C, D) */}
                     <span className="quiz-letter">{ABCD[i]}</span>
-                    <span className="flex-1 text-sm sm:text-base text-slate-800 dark:text-slate-100">
+                    <span className="flex-1 text-sm sm:text-base text-(--text)">
                       {opt.v}
                     </span>
                     {answered && i === correctIdx && (

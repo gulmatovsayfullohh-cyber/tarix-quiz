@@ -28,7 +28,7 @@ import {
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import { useSettingsStore } from "@/lib/settings-store";
-import { t } from "@/lib/translations";
+import { ruPlural, uzPlural, t } from "@/lib/translations";
 import { getFanlar, getMavzular } from "@/lib/questions";
 import { LOCAL_QUESTIONS } from "@/lib/questionsLocal";
 
@@ -75,31 +75,19 @@ export default function AdminPage() {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [customTopicMode, setCustomTopicMode] = useState(false);
 
-  // Load saved token
-  useEffect(() => {
-    const saved = localStorage.getItem("admin_token") || "";
-    if (saved) {
-      setToken(saved);
-      fetchQuestions(saved);
-    }
-  }, []);
-
-  const fetchQuestions = useCallback(async (tok: string) => {
+  const fetchQuestions = useCallback(async (_tok?: string) => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/admin/questions", {
-        headers: { "x-admin-token": tok },
-      });
+      const res = await fetch("/api/admin/questions");
       if (res.status === 401) {
-        setError(lang === "uz" ? "Token noto'g'ri. Qaytadan urinib ko'ring." : "Неверный токен. Попробуйте снова.");
         setToken("");
-        localStorage.removeItem("admin_token");
         setLoading(false);
         return;
       }
       const data = await res.json();
       setQuestions(Array.isArray(data) ? data : []);
+      setToken("session");
     } catch {
       setError(lang === "uz" ? "Savollarni yuklashda xatolik." : "Ошибка при загрузке вопросов.");
     } finally {
@@ -107,12 +95,32 @@ export default function AdminPage() {
     }
   }, [lang]);
 
-  const handleLogin = (e?: React.FormEvent) => {
+  useEffect(() => {
+    fetchQuestions();
+  }, [fetchQuestions]);
+
+  const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!tokenInput.trim()) return;
-    localStorage.setItem("admin_token", tokenInput.trim());
-    setToken(tokenInput.trim());
-    fetchQuestions(tokenInput.trim());
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("/api/admin/session", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ token: tokenInput }),
+      });
+      if (!res.ok) {
+        setError(lang === "uz" ? "Token noto'g'ri. Qaytadan urinib ko'ring." : "Неверный токен. Попробуйте снова.");
+        setToken("");
+        return;
+      }
+      setToken("session");
+      setTokenInput("");
+      await fetchQuestions();
+    } finally {
+      setLoading(false);
+    }
   };
 
   const showSuccess = (msg: string) => {
@@ -125,10 +133,7 @@ export default function AdminPage() {
     setSyncing(true);
     setError("");
     try {
-      const res = await fetch("/api/admin/seed", {
-        method: "POST",
-        headers: { "x-admin-token": token },
-      });
+      const res = await fetch("/api/admin/seed", { method: "POST" });
       const data = await res.json();
       if (!res.ok) {
         setError(data.error || "Sinxronlashda xatolik yuz berdi.");
@@ -160,7 +165,7 @@ export default function AdminPage() {
     try {
       const res = await fetch("/api/admin/questions", {
         method,
-        headers: { "content-type": "application/json", "x-admin-token": token },
+        headers: { "content-type": "application/json" },
         body: JSON.stringify(q),
       });
       if (!res.ok) {
@@ -185,7 +190,7 @@ export default function AdminPage() {
     try {
       const res = await fetch("/api/admin/questions", {
         method: "DELETE",
-        headers: { "content-type": "application/json", "x-admin-token": token },
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({ id }),
       });
       if (!res.ok) {
@@ -254,7 +259,7 @@ export default function AdminPage() {
   // ==========================================
   if (!token) {
     return (
-      <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 transition-colors">
+      <div className="min-h-screen flex flex-col bg-(--bg) text-(--text)">
         <Navbar />
         <main className="flex-1 flex items-center justify-center p-4">
           <motion.div
@@ -305,7 +310,7 @@ export default function AdminPage() {
                     type={showPassword ? "text" : "password"}
                     value={tokenInput}
                     onChange={(e) => setTokenInput(e.target.value)}
-                    placeholder="tarix-admin-2024"
+                    placeholder={lang === "uz" ? "Admin tokenini kiriting" : "Введите токен администратора"}
                     className="modern-input pr-10"
                     autoFocus
                   />
@@ -338,8 +343,8 @@ export default function AdminPage() {
               </button>
             </form>
 
-            <p className="mt-6 text-center text-[11px] text-slate-400 dark:text-slate-500">
-              Standart token: <code className="text-violet-600 dark:text-violet-400 font-bold bg-violet-500/10 px-1.5 py-0.5 rounded">tarix-admin-2024</code>
+            <p className="mt-6 text-center text-[11px] text-(--text-muted)">
+              {lang === "uz" ? "Token server konfiguratsiyasida saqlanadi." : "Токен хранится в настройках сервера."}
             </p>
           </motion.div>
         </main>
@@ -351,7 +356,7 @@ export default function AdminPage() {
   // MAIN ADMIN DASHBOARD
   // ==========================================
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 transition-colors">
+    <div className="min-h-screen flex flex-col bg-(--bg) text-(--text)">
       <Navbar />
 
       <main className="section-space flex-1">
@@ -428,8 +433,8 @@ export default function AdminPage() {
                 <span>{strings.admin.addQuestion}</span>
               </button>
               <button
-                onClick={() => {
-                  localStorage.removeItem("admin_token");
+                onClick={async () => {
+                  await fetch("/api/admin/session", { method: "DELETE" });
                   setToken("");
                   setQuestions([]);
                 }}
@@ -589,7 +594,9 @@ export default function AdminPage() {
                     </div>
                     <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">{group.fan}</h2>
                     <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-300 font-bold">
-                      {group.mavzular.reduce((acc, m) => acc + m.items.length, 0)} {lang === "uz" ? "ta savol" : "вопросов"}
+                      {lang === "uz"
+                        ? uzPlural(group.mavzular.reduce((acc, m) => acc + m.items.length, 0), "savol")
+                        : ruPlural(group.mavzular.reduce((acc, m) => acc + m.items.length, 0), "вопрос", "вопроса", "вопросов")}
                     </span>
                   </div>
 
@@ -770,103 +777,91 @@ export default function AdminPage() {
                         rows={3}
                         value={modal.q.savol}
                         onChange={(e) => setModal((m) => ({ ...m, q: { ...m.q, savol: e.target.value } }))}
-                        placeholder="Savol matni..."
-                        className="modern-input resize-y"
+                        placeholder={lang === "uz" ? "Savol matnini kiriting" : "Введите текст вопроса"}
+                        className="modern-input resize-none"
                       />
                     </div>
 
-                    {/* ABCD Variantlar */}
                     <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                          Variantlar (To&apos;g&apos;ri javobni tanlang)
-                        </label>
-                        <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
-                          ✓ Bosib belgilang
-                        </span>
-                      </div>
-
-                      <div className="space-y-2">
-                        {modal.q.variantlar.map((v, i) => {
-                          const isCorrect = modal.q.javob === i;
-                          const letter = ["A", "B", "C", "D"][i];
-                          const letterColors = [
-                            "bg-rose-500 text-white",
-                            "bg-blue-600 text-white",
-                            "bg-amber-500 text-white",
-                            "bg-emerald-600 text-white",
-                          ];
-                          return (
-                            <div
-                              key={i}
-                              className={`flex items-center gap-2 p-2 rounded-xl border-2 transition-all ${
-                                isCorrect
-                                  ? "border-emerald-500 bg-emerald-500/10"
-                                  : "border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5"
-                              }`}
-                            >
-                              <span className={`w-8 h-8 rounded-lg flex items-center justify-center font-extrabold text-sm shrink-0 ${letterColors[i]}`}>
-                                {letter}
-                              </span>
-                              <input
-                                type="text"
-                                value={v}
-                                onChange={(e) => {
-                                  const newVars = [...modal.q.variantlar];
-                                  newVars[i] = e.target.value;
-                                  setModal((m) => ({ ...m, q: { ...m.q, variantlar: newVars } }));
-                                }}
-                                placeholder={`${letter} varianti...`}
-                                className="modern-input py-1 px-3 text-xs bg-transparent border-0 focus:ring-0"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => setModal((m) => ({ ...m, q: { ...m.q, javob: i } }))}
-                                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                                  isCorrect
-                                    ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/30"
-                                    : "bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                                }`}
-                              >
-                                {isCorrect ? "✓ To'g'ri" : "Tanlash"}
-                              </button>
-                            </div>
-                          );
-                        })}
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+                        Variantlar
+                      </label>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {modal.q.variantlar.map((variant, idx) => (
+                          <div key={idx} className="flex items-center gap-2">
+                            <span className="text-xs font-mono font-bold text-slate-400">{String.fromCharCode(65 + idx)}.</span>
+                            <input
+                              type="text"
+                              value={variant}
+                              onChange={(e) => {
+                                const newVariantlar = [...modal.q.variantlar];
+                                newVariantlar[idx] = e.target.value;
+                                setModal((m) => ({ ...m, q: { ...m.q, variantlar: newVariantlar } }));
+                              }}
+                              placeholder={lang === "uz" ? "Variant matnini kiriting" : "Введите текст варианта"}
+                              className="modern-input flex-1"
+                            />
+                          </div>
+                        ))}
                       </div>
                     </div>
 
                     <div>
                       <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                        Izoh / Tushuntirish (Ixtiyoriy)
+                        Javob
                       </label>
-                      <input
-                        type="text"
-                        value={modal.q.izoh}
-                        onChange={(e) => setModal((m) => ({ ...m, q: { ...m.q, izoh: e.target.value } }))}
-                        placeholder="Qo'shimcha tarixiy fakt..."
+                      <select
+                        value={modal.q.javob}
+                        onChange={(e) => setModal((m) => ({ ...m, q: { ...m.q, javob: Number(e.target.value) } }))}
                         className="modern-input"
-                      />
+                      >
+                        {modal.q.variantlar.map((_, idx) => (
+                          <option key={idx} value={idx}>
+                            {String.fromCharCode(65 + idx)} - {modal.q.variantlar[idx]}
+                          </option>
+                        ))}
+                      </select>
                     </div>
 
-                    <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-white/10">
-                      <button
-                        type="button"
-                        onClick={() => setModal({ open: false, q: { ...EMPTY_Q } })}
-                        className="btn-ghost"
-                      >
-                        Bekor qilish
-                      </button>
-                      <button
-                        type="button"
-                        onClick={saveQuestion}
-                        disabled={loading}
-                        className="btn-primary"
-                      >
-                        <Save size={16} />
-                        {loading ? "Saqlanmoqda..." : "Saqlash"}
-                      </button>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+                        Izoh (optional)
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={modal.q.izoh}
+                        onChange={(e) => setModal((m) => ({ ...m, q: { ...m.q, izoh: e.target.value } }))}
+                        placeholder={lang === "uz" ? "Izoh qo'shish" : "Добавить примечание"}
+                        className="modern-input resize-none"
+                      />
                     </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-3 mt-4">
+                    <button
+                      onClick={saveQuestion}
+                      disabled={loading}
+                      className="btn-primary flex-1"
+                    >
+                      {loading ? (
+                        <span className="flex items-center gap-2">
+                          <RefreshCw size={16} className="animate-spin" />
+                          {lang === "uz" ? "Saqlanmoqda..." : "Сохранение..."}
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-2">
+                          <Save size={16} />
+                          {modal.q.id ? lang === "uz" ? "O'zgartirishlarni saqlash" : "Сохранить изменения" : lang === "uz" ? "Savolni saqlash" : "Сохранить вопрос"}
+                        </span>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => setModal({ open: false, q: { ...EMPTY_Q } })}
+                      className="btn-ghost flex-1"
+                    >
+                      <X size={16} />
+                      {lang === "uz" ? "Chiqish" : "Выход"}
+                    </button>
                   </div>
                 </motion.div>
               </div>

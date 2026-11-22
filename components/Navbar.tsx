@@ -1,102 +1,219 @@
 "use client";
+
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-  Gamepad2,
-  Settings,
   BarChart2,
-  Sun,
-  Moon,
+  Gamepad2,
   Globe,
+  Languages,
+  Menu,
+  Moon,
+  Settings,
   Sparkles,
+  Sun,
+  X,
 } from "lucide-react";
 import { useSettingsStore } from "@/lib/settings-store";
 import { t } from "@/lib/translations";
 
 export default function Navbar() {
-  const { lang, setLang, theme, toggleTheme, setTheme } = useSettingsStore();
+  const { lang, setLang, theme, setTheme } = useSettingsStore();
   const [mounted, setMounted] = useState(false);
+  const [languageOpen, setLanguageOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const languageRef = useRef<HTMLDivElement>(null);
   const strings = t[lang];
 
   useEffect(() => {
     setMounted(true);
     const savedTheme = localStorage.getItem("app_theme") as "light" | "dark" | null;
     const savedLang = localStorage.getItem("app_lang") as "uz" | "ru" | null;
-    if (savedTheme) setTheme(savedTheme);
+    const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    setTheme(savedTheme || systemTheme);
     if (savedLang) setLang(savedLang);
   }, [setTheme, setLang]);
 
+  useEffect(() => {
+    const close = (event: MouseEvent) => {
+      if (!languageRef.current?.contains(event.target as Node)) setLanguageOpen(false);
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setLanguageOpen(false);
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", close);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("mousedown", close);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, []);
+
+  const chooseLanguage = (next: "uz" | "ru") => {
+    setLang(next);
+    setLanguageOpen(false);
+  };
+
   return (
-    <header className="sticky top-0 z-40 h-18 w-full border-b-[3px] border-[#111] bg-(--comic-cream)/95 backdrop-blur-md dark:border-white">
-      <div className="site-container h-full flex items-center justify-between gap-4">
-        {/* Logo / Brand */}
-        <Link href="/" className="flex items-center gap-2 group text-decoration-none">
-          <div className="w-11 h-11 rounded-full border-[3px] border-[#111] bg-(--comic-teal) flex items-center justify-center text-[#111] shadow-[3px_3px_0_#111] group-hover:translate-x-px group-hover:translate-y-px transition-transform">
+    <header className="sticky top-0 z-50 h-18 border-b-[3px] border-(--border) bg-(--bg)">
+      <div className="site-container h-full flex items-center justify-between gap-3">
+        <Link
+          href="/"
+          aria-label="Visola psi — bosh sahifa"
+          className="flex min-h-11 items-center gap-2"
+        >
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-[3px] border-(--border) bg-(--accent-teal) text-[#111111] shadow-[3px_3px_0_var(--shadow-color)]">
             <Sparkles size={20} strokeWidth={3} />
-          </div>
-          <span className="comic-title text-lg sm:text-xl text-[#111] dark:text-white">
-            Visola <span className="text-violet-600 dark:text-violet-400">psi</span>
+          </span>
+          <span className="comic-title hidden text-lg text-(--text) xs:block sm:text-xl">
+            Visola{" "}
+            <span className="text-(--primary)">psi</span>
           </span>
         </Link>
 
-        {/* Navigation links & controls */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Test (Join Game o'rniga) */}
+        <nav
+          className="hidden items-center gap-2 md:flex"
+          aria-label={
+            lang === "uz" ? "Asosiy menyu" : "Основная навигация"
+          }
+        >
           <Link
             href="/#subjects"
-            className="flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+            className="nav-pill"
+            aria-label={strings.nav.test}
           >
-            <Gamepad2 size={16} className="text-violet-600 dark:text-violet-400" />
-            <span className="hidden xs:inline">{strings.nav.test}</span>
+            <Gamepad2 size={17} />
+            <span>{strings.nav.test}</span>
           </Link>
-
-          {/* Admin Panel (Group Pricing o'rniga) */}
           <Link
             href="/admin"
-            className="flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+            className="nav-pill"
+            aria-label={strings.nav.admin}
           >
-            <Settings size={16} className="text-amber-500" />
-            <span className="hidden sm:inline">{strings.nav.admin}</span>
+            <Settings size={17} />
+            <span>{strings.nav.admin}</span>
           </Link>
-
-          {/* Statistika (Login / Sign Up o'rniga) */}
           <Link
             href="/statistika"
-            className="flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-emerald-500 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+            className="nav-pill"
+            aria-label={strings.nav.stats}
           >
-            <BarChart2 size={16} className="text-emerald-500" />
-            <span className="hidden md:inline">{strings.nav.stats}</span>
+            <BarChart2 size={17} />
+            <span>{strings.nav.stats}</span>
           </Link>
+        </nav>
 
-          <div className="h-4 w-px bg-slate-300 dark:bg-white/10 mx-0.5" />
-
-          {/* Language Switcher */}
-          <button
-            onClick={() => setLang(lang === "uz" ? "ru" : "uz")}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-white/10 transition-colors"
-            title="Tilni o'zgartirish / Сменить язык"
-            aria-label={lang === "uz" ? "Tilni o'zgartirish" : "Сменить язык"}
-          >
-            <Globe size={13} className="text-violet-600 dark:text-violet-400" />
-            <span>{lang.toUpperCase()}</span>
-          </button>
-
-          {/* Dark / Light Mode Toggle */}
-          {mounted && (
+        <div className="flex items-center gap-2">
+          <div ref={languageRef} className="relative">
             <button
-              onClick={toggleTheme}
-              className="p-2 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-white/10 transition-colors"
-              title={theme === "dark" ? "Oq rejimga o'tish" : "Qora rejimga o'tish"}
+              type="button"
+              className="nav-icon"
+              aria-label={
+                lang === "uz" ? "Tilni tanlash" : "Выбрать язык"
+              }
+              aria-expanded={languageOpen}
+              onClick={() => setLanguageOpen((open) => !open)}
             >
-              {theme === "dark" ? (
-                <Sun size={16} className="text-amber-400" />
+              {lang === "uz" ? (
+                <Languages size={20} />
               ) : (
-                <Moon size={16} className="text-violet-600" />
+                <Globe size={20} />
               )}
             </button>
+
+            {languageOpen && (
+              <div className="absolute right-0 top-13 w-44 border-[3px] border-(--border) rounded-[14px] bg-(--bg-elevated) p-2 shadow-[4px_4px_0_var(--shadow-color)]">
+                <button
+                  type="button"
+                  onClick={() => chooseLanguage("ru")}
+                  className="flex min-h-11 w-full items-center justify-between rounded-[10px] px-3 text-sm font-black text-(--text) hover:bg-(--bg-muted)"
+                >
+                  Русский{" "}
+                  {lang === "ru" && <span aria-hidden="true">✓</span>}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => chooseLanguage("uz")}
+                  className="mt-1 flex min-h-11 w-full items-center justify-between rounded-[10px] px-3 text-sm font-black text-(--text) hover:bg-(--bg-muted)"
+                >
+                  O'zbekcha{" "}
+                  {lang === "uz" && <span aria-hidden="true">✓</span>}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {mounted && (
+            <button
+              type="button"
+              className="nav-icon"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              aria-label={
+                theme === "dark"
+                  ? lang === "uz"
+                    ? "Yorqin rejim"
+                    : "Светлая тема"
+                  : lang === "uz"
+                  ? "Qorong'i rejim"
+                  : "Тёмная тема"
+              }
+            >
+              {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
           )}
+
+          <button
+            type="button"
+            className="nav-icon md:hidden"
+            aria-label={
+              lang === "uz" ? "Menyuni ochish" : "Открыть меню"
+            }
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            {menuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
         </div>
       </div>
+
+      {menuOpen && (
+        <nav
+          className="absolute left-0 right-0 top-18 border-b-[3px] border-(--border) bg-(--bg-elevated) p-4 md:hidden"
+          aria-label={
+            lang === "uz" ? "Mobil menyu" : "Мобильная навигация"
+          }
+        >
+          <div className="site-container grid gap-2 px-0">
+            <Link
+              href="/#subjects"
+              onClick={() => setMenuOpen(false)}
+              className="flex min-h-12 items-center gap-3 rounded-xl border-2 border-(--border) px-4 font-black"
+            >
+              <Gamepad2 size={18} />
+              {strings.nav.test}
+            </Link>
+            <Link
+              href="/admin"
+              onClick={() => setMenuOpen(false)}
+              className="flex min-h-12 items-center gap-3 rounded-xl border-2 border-(--border) px-4 font-black"
+            >
+              <Settings size={18} />
+              {strings.nav.admin}
+            </Link>
+            <Link
+              href="/statistika"
+              onClick={() => setMenuOpen(false)}
+              className="flex min-h-12 items-center gap-3 rounded-xl border-2 border-(--border) px-4 font-black"
+            >
+              <BarChart2 size={18} />
+              {strings.nav.stats}
+            </Link>
+          </div>
+        </nav>
+      )}
     </header>
   );
 }

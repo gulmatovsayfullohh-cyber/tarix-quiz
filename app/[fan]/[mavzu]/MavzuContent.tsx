@@ -8,6 +8,7 @@ import { useQuizStore } from "@/lib/quiz-store";
 import Navbar from "@/components/Navbar";
 import { useSettingsStore } from "@/lib/settings-store";
 import { useEffect, useState } from "react";
+import { ruPlural, uzPlural } from "@/lib/translations";
 
 const COUNT_OPTIONS = [5, 10, 15, 20, 30];
 
@@ -38,7 +39,7 @@ export default function MavzuContent({ fan, mavzu }: { fan: string; mavzu: strin
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 transition-colors">
+    <div className="min-h-screen flex flex-col bg-(--bg) text-(--text)">
       <Navbar />
 
       <main className="section-space flex-1">
@@ -56,7 +57,7 @@ export default function MavzuContent({ fan, mavzu }: { fan: string; mavzu: strin
           <motion.div
             initial={{ opacity: 0, scale: 0.96, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="liquid-border p-6 sm:p-10 bg-white dark:bg-slate-900 rounded-3xl shadow-xl text-center space-y-6"
+            className="liquid-border p-6 sm:p-8 rounded-3xl text-center space-y-6"
           >
             <div className="w-14 h-14 rounded-2xl bg-violet-500/10 text-violet-600 dark:text-violet-400 flex items-center justify-center mx-auto">
               <Gamepad2 size={28} />
