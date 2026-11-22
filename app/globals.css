@@ -304,6 +304,9 @@ main, section, footer, header { background-color: var(--bg); color: var(--text);
 .glass, .liquid-border, .comic-panel { background: var(--bg-elevated); color: var(--text); border-color: var(--border); box-shadow: var(--comic-shadow); }
 .modern-input { background: var(--bg-elevated); color: var(--text); border-color: var(--border); }
 .modern-input::placeholder { color: var(--text-muted); }
+.field-invalid { border-color: var(--danger) !important; }
+.field-error { margin-top: 6px; color: var(--danger); font-size: 13px; font-weight: 800; }
+.question-modal-footer { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
 .text-slate-900, .text-slate-800, .text-slate-700,
 .dark\:text-white, .dark\:text-slate-100, .dark\:text-slate-200,
 .dark\:text-slate-300, .dark\:text-slate-400 { color: var(--text) !important; }

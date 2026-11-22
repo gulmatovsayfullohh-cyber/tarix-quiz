@@ -7,6 +7,8 @@ export interface Question {
   javob: number;
   izoh: string;
   sinf?: number;
+  isLocal?: boolean;
+  isDeleted?: boolean;
 }
 
 export interface ShuffledQuestion extends Question {

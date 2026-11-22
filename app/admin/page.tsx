@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
@@ -29,7 +29,13 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import { useSettingsStore } from "@/lib/settings-store";
 import { ruPlural, uzPlural, t } from "@/lib/translations";
-import { getFanlar, getMavzular } from "@/lib/questions";
+import {
+  getFanlar,
+  getMavzular,
+  LOCAL_QUESTION_OVERRIDES_KEY,
+  mergeLocalQuestionOverrides,
+  readLocalQuestionOverrides,
+} from "@/lib/questions";
 import { LOCAL_QUESTIONS } from "@/lib/questionsLocal";
 
 interface Question {
@@ -40,7 +46,7 @@ interface Question {
   variantlar: string[];
   javob: number;
   izoh: string;
-  sinf: number;
+  sinf?: number;
   isLocal?: boolean;
 }
 
@@ -49,10 +55,19 @@ const EMPTY_Q: Omit<Question, "id"> = {
   mavzu: "",
   savol: "",
   variantlar: ["", "", "", ""],
-  javob: 0,
+  javob: -1,
   izoh: "",
   sinf: 8,
 };
+
+function normalizeTopicName(value: string) {
+  return value
+    .normalize("NFC")
+    .trim()
+    .toLocaleLowerCase("uz-UZ")
+    .replace(/[ʻʼ`´’‘]/g, "'")
+    .replace(/\s+/g, " ");
+}
 
 export default function AdminPage() {
   const { lang } = useSettingsStore();
@@ -74,6 +89,10 @@ export default function AdminPage() {
   });
   const [deleting, setDeleting] = useState<string | null>(null);
   const [customTopicMode, setCustomTopicMode] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const modalRef = useRef<HTMLDivElement>(null);
+  const closeModalRef = useRef<() => void>(() => {});
+  const saveLockRef = useRef(false);
 
   const fetchQuestions = useCallback(async (_tok?: string) => {
     setLoading(true);
@@ -86,7 +105,7 @@ export default function AdminPage() {
         return;
       }
       const data = await res.json();
-      setQuestions(Array.isArray(data) ? data : []);
+      setQuestions(mergeLocalQuestionOverrides(Array.isArray(data) ? data : []));
       setToken("session");
     } catch {
       setError(lang === "uz" ? "Savollarni yuklashda xatolik." : "Ошибка при загрузке вопросов.");
@@ -98,6 +117,55 @@ export default function AdminPage() {
   useEffect(() => {
     fetchQuestions();
   }, [fetchQuestions]);
+
+  const closeModal = (force = false) => {
+    const hasDraft = Boolean(
+      modal.q.savol.trim() ||
+      modal.q.izoh.trim() ||
+      modal.q.variantlar.some((variant) => variant.trim()) ||
+      (customTopicMode && modal.q.mavzu.trim())
+    );
+    if (!force && hasDraft && !window.confirm(lang === "uz" ? "Kiritilgan ma'lumotlar yo'qoladi. Yopilsinmi?" : "Введённые данные будут потеряны. Закрыть?")) return;
+    setModal({ open: false, q: { ...EMPTY_Q } });
+    setCustomTopicMode(false);
+    setFieldErrors({});
+    setError("");
+  };
+  closeModalRef.current = () => closeModal();
+
+  useEffect(() => {
+    if (!modal.open) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    modalRef.current?.querySelector<HTMLElement>("input, select, textarea")?.focus();
+
+    const trapFocus = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeModalRef.current();
+        return;
+      }
+      if (event.key !== "Tab" || !modalRef.current) return;
+      const focusable = Array.from(modalRef.current.querySelectorAll<HTMLElement>(
+        "button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href]"
+      ));
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", trapFocus);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", trapFocus);
+    };
+  }, [modal.open]);
 
   const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -150,36 +218,80 @@ export default function AdminPage() {
 
   const saveQuestion = async () => {
     const q = modal.q;
-    if (!q.savol.trim() || !q.mavzu.trim()) {
-      setError(lang === "uz" ? "Savol matni va mavzuni to'ldiring." : "Заполните текст вопроса и тему.");
+    const errors: Record<string, string> = {};
+    if (!q.mavzu.trim()) errors.mavzu = lang === "uz" ? "Mavzuni tanlang yoki kiriting." : "Выберите или введите тему.";
+    if (!q.savol.trim()) errors.savol = lang === "uz" ? "Savol matnini kiriting." : "Введите текст вопроса.";
+    q.variantlar.forEach((value, index) => {
+      if (!value.trim()) errors[`variant${index}`] = lang === "uz" ? "Variantni to'ldiring." : "Заполните вариант.";
+    });
+    if (!Number.isInteger(q.javob) || q.javob < 0 || q.javob > 3 || !q.variantlar[q.javob]?.trim()) {
+      errors.javob = lang === "uz" ? "To'g'ri javobni tanlang." : "Выберите правильный ответ.";
+    }
+    setFieldErrors(errors);
+    if (Object.keys(errors).length) {
+      setError(lang === "uz" ? "Belgilangan maydonlarni tekshiring." : "Проверьте выделенные поля.");
       return;
     }
-    if (q.variantlar.some((v) => !v.trim())) {
-      setError(lang === "uz" ? "Barcha 4 ta variantni to'ldiring." : "Заполните все 4 варианта.");
-      return;
-    }
+    if (saveLockRef.current) return;
+    saveLockRef.current = true;
 
+    const matchingTopic = questions.find((item) =>
+      item.fan === q.fan &&
+      (item.sinf || 8) === (q.sinf || 8) &&
+      normalizeTopicName(item.mavzu) === normalizeTopicName(q.mavzu)
+    );
+    const payload = {
+      ...q,
+      fan: q.fan.trim(),
+      mavzu: matchingTopic?.mavzu ?? q.mavzu.normalize("NFC").trim().replace(/\s+/g, " "),
+      savol: q.savol.trim(),
+      variantlar: q.variantlar.map((value) => value.trim()),
+      izoh: q.izoh.trim(),
+      sinf: q.sinf || 8,
+    };
     setLoading(true);
     setError("");
+    const localMode = questions.length > 0 && questions.every((item) => item.isLocal);
     const method = q.id && !String(q.id).startsWith("local-") ? "PUT" : "POST";
     try {
+      if (localMode) {
+        const overrides = readLocalQuestionOverrides();
+        const localQuestion: Question = {
+          ...payload,
+          id: q.id || `local-custom-${Date.now()}`,
+          isLocal: true,
+        };
+        const nextOverrides = [
+          ...overrides.filter((item) => item.id !== localQuestion.id),
+          localQuestion,
+        ];
+        localStorage.setItem(LOCAL_QUESTION_OVERRIDES_KEY, JSON.stringify(nextOverrides));
+        setQuestions(mergeLocalQuestionOverrides(questions));
+        setModal({ open: false, q: { ...EMPTY_Q } });
+        setCustomTopicMode(false);
+        showSuccess(lang === "uz" ? "Savol qo'shildi" : "Вопрос добавлен");
+        setError("");
+        return;
+      }
+
       const res = await fetch("/api/admin/questions", {
         method,
         headers: { "content-type": "application/json" },
-        body: JSON.stringify(q),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
         const d = await res.json().catch(() => ({}));
-        setError(d.error || "Saqlashda xato yuz berdi!");
-        setLoading(false);
+        setError(d.error || (lang === "uz" ? "Savol saqlanmadi." : "Не удалось сохранить вопрос."));
         return;
       }
       setModal({ open: false, q: { ...EMPTY_Q } });
-      showSuccess(q.id ? "Savol yangilandi ✓" : "Yangi savol qo'shildi ✓");
-      fetchQuestions(token);
-    } catch {
-      setError("Server bilan aloqa uzildi.");
+      setCustomTopicMode(false);
+      showSuccess(lang === "uz" ? (q.id ? "Savol yangilandi" : "Savol qo'shildi") : (q.id ? "Вопрос обновлён" : "Вопрос добавлен"));
+      await fetchQuestions();
+    } catch (saveError) {
+      setError(saveError instanceof Error ? saveError.message : (lang === "uz" ? "Server bilan aloqa uzildi." : "Не удалось связаться с сервером."));
     } finally {
+      saveLockRef.current = false;
       setLoading(false);
     }
   };
@@ -188,6 +300,16 @@ export default function AdminPage() {
     if (!confirm(lang === "uz" ? "Haqiqatan ham bu savolni o'chirmoqchimisiz?" : "Вы действительно хотите удалить этот вопрос?")) return;
     setDeleting(id);
     try {
+      const localQuestion = questions.find((question) => question.id === id && question.isLocal);
+      if (localQuestion) {
+        const overrides = readLocalQuestionOverrides().filter((question) => question.id !== id);
+        overrides.push({ ...localQuestion, isDeleted: true });
+        localStorage.setItem(LOCAL_QUESTION_OVERRIDES_KEY, JSON.stringify(overrides));
+        setQuestions((current) => current.filter((question) => question.id !== id));
+        showSuccess(lang === "uz" ? "Savol o'chirildi" : "Вопрос удалён");
+        return;
+      }
+
       const res = await fetch("/api/admin/questions", {
         method: "DELETE",
         headers: { "content-type": "application/json" },
@@ -208,11 +330,15 @@ export default function AdminPage() {
 
   const openEdit = (q: Question) => {
     setCustomTopicMode(false);
+    setFieldErrors({});
+    setError("");
     setModal({ open: true, q: { ...q, variantlar: [...q.variantlar] } });
   };
 
   const openAdd = () => {
     setCustomTopicMode(false);
+    setFieldErrors({});
+    setError("");
     const firstFan = getFanlar()[0] || EMPTY_Q.fan;
     const firstTopic = getMavzular(firstFan)[0] || "";
     setModal({
@@ -670,30 +796,46 @@ export default function AdminPage() {
           {/* Modal: Tahrirlash / Yangi savol */}
           <AnimatePresence>
             {modal.open && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
+              <div
+                className="fixed inset-0 z-100 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm max-[480px]:p-0"
+                onMouseDown={(event) => {
+                  if (event.target === event.currentTarget) closeModal();
+                }}
+              >
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95, y: 10 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                  className="liquid-border w-full max-w-xl max-h-[92vh] overflow-y-auto p-6 sm:p-8 bg-white dark:bg-slate-900 shadow-2xl"
+                  ref={modalRef}
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="question-modal-title"
+                  className="liquid-border flex max-h-[calc(100dvh-32px)] w-full max-w-xl flex-col overflow-hidden bg-(--bg-elevated) p-0 max-[480px]:h-dvh max-[480px]:max-h-dvh max-[480px]:max-w-none max-[480px]:rounded-none"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-white/10 mb-6">
+                  <div className="sticky top-0 z-10 flex shrink-0 items-center justify-between gap-4 border-b border-(--border) bg-(--bg-elevated) px-6 py-4">
                     <div>
-                      <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <h3 id="question-modal-title" className="flex items-center gap-2 text-lg font-bold text-(--text)">
                         {modal.q.id ? <Pencil size={18} className="text-violet-600" /> : <Plus size={18} className="text-violet-600" />}
                         {modal.q.id ? "Savolni tahrirlash" : "Yangi savol qo'shish"}
                       </h3>
                     </div>
                     <button
-                      onClick={() => setModal({ open: false, q: { ...EMPTY_Q } })}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white"
+                      type="button"
+                      aria-label={lang === "uz" ? "Modalni yopish" : "Закрыть окно"}
+                      onClick={() => closeModal()}
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 border-(--border) text-(--text-muted) hover:bg-(--bg-muted)"
                     >
                       <X size={18} />
                     </button>
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-4 sm:p-6">
+                    {error && (
+                      <div role="alert" className="rounded-xl border-2 border-(--danger) bg-red-50 p-3 text-sm font-bold text-red-900 dark:bg-red-950 dark:text-red-100">
+                        {error}
+                      </div>
+                    )}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
@@ -738,27 +880,45 @@ export default function AdminPage() {
                         </label>
                         <button
                           type="button"
-                          onClick={() => setCustomTopicMode((value) => !value)}
+                          onClick={() => {
+                            const nextMode = !customTopicMode;
+                            setCustomTopicMode(nextMode);
+                            setModal((current) => ({
+                              ...current,
+                              q: { ...current.q, mavzu: nextMode ? "" : (getMavzular(current.q.fan)[0] || "") },
+                            }));
+                            setFieldErrors((current) => ({ ...current, mavzu: "" }));
+                          }}
                           className="text-[11px] font-bold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
                         >
                           {customTopicMode ? "Mavzulardan tanlash" : "+ Yangi mavzu"}
                         </button>
                       </div>
                       {customTopicMode ? (
-                        <input
-                          type="text"
-                          value={modal.q.mavzu}
-                          onChange={(e) => setModal((m) => ({ ...m, q: { ...m.q, mavzu: e.target.value } }))}
-                          placeholder="Yangi mavzu nomini kiriting"
-                          className="modern-input"
-                          autoFocus
-                        />
+                        <>
+                          <input
+                            type="text"
+                            value={modal.q.mavzu}
+                            onChange={(e) => {
+                              setModal((m) => ({ ...m, q: { ...m.q, mavzu: e.target.value } }));
+                              setFieldErrors((current) => ({ ...current, mavzu: "" }));
+                            }}
+                            placeholder={lang === "uz" ? "Yangi mavzu nomini kiriting" : "Введите название новой темы"}
+                            className={`modern-input ${fieldErrors.mavzu ? "field-invalid" : ""}`}
+                            autoFocus
+                          />
+                          {fieldErrors.mavzu && <p className="field-error">{fieldErrors.mavzu}</p>}
+                        </>
                       ) : (
                         <select
                           value={modal.q.mavzu}
-                          onChange={(e) => setModal((m) => ({ ...m, q: { ...m.q, mavzu: e.target.value } }))}
-                          className="modern-input"
+                          onChange={(e) => {
+                            setModal((m) => ({ ...m, q: { ...m.q, mavzu: e.target.value } }));
+                            setFieldErrors((current) => ({ ...current, mavzu: "" }));
+                          }}
+                          className={`modern-input ${fieldErrors.mavzu ? "field-invalid" : ""}`}
                         >
+                          <option value="">{lang === "uz" ? "Mavzuni tanlang" : "Выберите тему"}</option>
                           {[...new Set([
                             ...getMavzular(modal.q.fan),
                             ...questions.filter((q) => q.fan === modal.q.fan).map((q) => q.mavzu),
@@ -776,10 +936,14 @@ export default function AdminPage() {
                       <textarea
                         rows={3}
                         value={modal.q.savol}
-                        onChange={(e) => setModal((m) => ({ ...m, q: { ...m.q, savol: e.target.value } }))}
+                        onChange={(e) => {
+                          setModal((m) => ({ ...m, q: { ...m.q, savol: e.target.value } }));
+                          setFieldErrors((current) => ({ ...current, savol: "" }));
+                        }}
                         placeholder={lang === "uz" ? "Savol matnini kiriting" : "Введите текст вопроса"}
-                        className="modern-input resize-none"
+                        className={`modern-input resize-none ${fieldErrors.savol ? "field-invalid" : ""}`}
                       />
+                      {fieldErrors.savol && <p className="field-error">{fieldErrors.savol}</p>}
                     </div>
 
                     <div>
@@ -788,7 +952,7 @@ export default function AdminPage() {
                       </label>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {modal.q.variantlar.map((variant, idx) => (
-                          <div key={idx} className="flex items-center gap-2">
+                          <div key={idx} className="flex flex-col items-start gap-1">
                             <span className="text-xs font-mono font-bold text-slate-400">{String.fromCharCode(65 + idx)}.</span>
                             <input
                               type="text"
@@ -797,10 +961,12 @@ export default function AdminPage() {
                                 const newVariantlar = [...modal.q.variantlar];
                                 newVariantlar[idx] = e.target.value;
                                 setModal((m) => ({ ...m, q: { ...m.q, variantlar: newVariantlar } }));
+                                setFieldErrors((current) => ({ ...current, [`variant${idx}`]: "" }));
                               }}
                               placeholder={lang === "uz" ? "Variant matnini kiriting" : "Введите текст варианта"}
-                              className="modern-input flex-1"
+                              className={`modern-input ${fieldErrors[`variant${idx}`] ? "field-invalid" : ""}`}
                             />
+                            {fieldErrors[`variant${idx}`] && <p className="field-error">{fieldErrors[`variant${idx}`]}</p>}
                           </div>
                         ))}
                       </div>
@@ -812,15 +978,22 @@ export default function AdminPage() {
                       </label>
                       <select
                         value={modal.q.javob}
-                        onChange={(e) => setModal((m) => ({ ...m, q: { ...m.q, javob: Number(e.target.value) } }))}
-                        className="modern-input"
+                        onChange={(e) => {
+                          setModal((m) => ({ ...m, q: { ...m.q, javob: Number(e.target.value) } }));
+                          setFieldErrors((current) => ({ ...current, javob: "" }));
+                        }}
+                        className={`modern-input ${fieldErrors.javob ? "field-invalid" : ""}`}
                       >
-                        {modal.q.variantlar.map((_, idx) => (
-                          <option key={idx} value={idx}>
-                            {String.fromCharCode(65 + idx)} - {modal.q.variantlar[idx]}
+                        <option value={-1} disabled>
+                          {lang === "uz" ? "To'g'ri javobni tanlang" : "Выберите правильный ответ"}
+                        </option>
+                        {modal.q.variantlar.map((variant, idx) => (
+                          <option key={idx} value={idx} disabled={!variant.trim()}>
+                            {String.fromCharCode(65 + idx)} - {variant.trim() || (lang === "uz" ? "Variant kiritilmagan" : "Вариант не заполнен")}
                           </option>
                         ))}
                       </select>
+                      {fieldErrors.javob && <p className="field-error">{fieldErrors.javob}</p>}
                     </div>
 
                     <div>
@@ -837,11 +1010,12 @@ export default function AdminPage() {
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-3 mt-4">
+                  <div className="question-modal-footer sticky bottom-0 z-10 flex shrink-0 flex-col-reverse gap-3 border-t border-(--border) bg-(--bg-elevated) px-4 py-4 sm:flex-row sm:justify-end sm:px-6">
                     <button
+                      type="button"
                       onClick={saveQuestion}
                       disabled={loading}
-                      className="btn-primary flex-1"
+                      className="btn-primary w-full sm:w-auto"
                     >
                       {loading ? (
                         <span className="flex items-center gap-2">
@@ -856,8 +1030,9 @@ export default function AdminPage() {
                       )}
                     </button>
                     <button
-                      onClick={() => setModal({ open: false, q: { ...EMPTY_Q } })}
-                      className="btn-ghost flex-1"
+                      type="button"
+                      onClick={() => closeModal()}
+                      className="btn-ghost w-full sm:w-auto"
                     >
                       <X size={16} />
                       {lang === "uz" ? "Chiqish" : "Выход"}

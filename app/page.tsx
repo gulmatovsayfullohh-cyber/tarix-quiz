@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import {
   BookOpen,
   Globe2,
@@ -20,12 +21,31 @@ import {
 import Navbar from "@/components/Navbar";
 import { useSettingsStore } from "@/lib/settings-store";
 import { t } from "@/lib/translations";
-import { getFanlar, getSavollarSoni, getMavzular } from "@/lib/questions";
+import { fetchQuestions, getFanlar, getSavollarSoni, getMavzular } from "@/lib/questions";
+import type { Question } from "@/types";
 
 export default function HomePage() {
   const { lang } = useSettingsStore();
-  const fanlar = getFanlar();
+  const [allQuestions, setAllQuestions] = useState<Question[]>([]);
+  const fanlar = [...new Set([...getFanlar(), ...allQuestions.map((question) => question.fan)])];
   const uz = lang === "uz";
+
+  useEffect(() => {
+    let active = true;
+    fetchQuestions().then((questions) => {
+      if (active) setAllQuestions(questions);
+    });
+    return () => { active = false; };
+  }, []);
+
+  const topicCount = (fan: string) => new Set([
+    ...getMavzular(fan),
+    ...allQuestions.filter((question) => question.fan === fan).map((question) => question.mavzu),
+  ]).size;
+  const questionCount = (fan: string) => {
+    const count = allQuestions.filter((question) => question.fan === fan).length;
+    return allQuestions.length ? count : getSavollarSoni(fan);
+  };
 
   const subjectText = (fan: string) => {
     if (fan.includes("O'zbekiston")) {
@@ -169,7 +189,7 @@ export default function HomePage() {
               {fanlar.map((fan) => (
                 <article key={fan} className="comic-panel relative flex min-h-70 flex-col p-6">
                   <span className="absolute right-4 top-4 comic-badge bg-(--comic-yellow) text-[#111]">
-                    {getMavzular(fan).length} {uz ? "ta mavzu" : "тем"}
+                    {topicCount(fan)} {uz ? "ta mavzu" : "тем"}
                   </span>
                   <div className="flex h-12 w-12 items-center justify-center rounded-full border-[3px] border-[#111] bg-(--comic-purple) text-white shadow-[3px_3px_0_#111]">
                     {fan.includes("O'zbekiston") ? <BookOpen size={24} /> : <Globe2 size={24} />}
@@ -177,7 +197,7 @@ export default function HomePage() {
                   <h3 className="mt-4 text-2xl">{fan}</h3>
                   <p className="mt-2 flex-1 text-sm leading-6 text-slate-600 dark:text-slate-300">{subjectText(fan)}</p>
                   <div className="mt-4 flex items-center justify-between gap-3 border-t-2 border-[#111] pt-4 dark:border-white">
-                    <span className="text-sm font-black">{getSavollarSoni(fan)} {uz ? "ta savol" : "вопросов"}</span>
+                    <span className="text-sm font-black">{questionCount(fan)} {uz ? "ta savol" : "вопросов"}</span>
                     <Link href={`/${encodeURIComponent(fan)}`}><button className="comic-button flex h-13 items-center gap-2 px-5 text-sm" type="button">{uz ? "Boshlash" : "Начать"}<ArrowRight size={17} /></button></Link>
                   </div>
                 </article>
